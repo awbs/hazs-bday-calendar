@@ -155,6 +155,10 @@ function show(d) {
   dlg.showModal();
 }
 
+/* Deep link: ?day=5 opens that door (or shows when it unlocks). Used by the QR codes. */
+const want = parseInt(new URLSearchParams(location.search).get("day"), 10);
+if (want >= 1 && want <= 16) grid.children[want - 1].firstChild.click();
+
 function stop() { document.getElementById("dm").textContent = ""; }
 document.getElementById("close").addEventListener("click", () => dlg.close());
 dlg.addEventListener("close", stop);
