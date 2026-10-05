@@ -106,13 +106,28 @@ const YEAR = 2026;
    "embed"   -> src: "https://w.soundcloud.com/player/?url=..."
    Optional image: "images/day1.jpg" (+ alt) shows above the message.
    Leave media out for a text-only door. Days without an entry show a placeholder.
+   Example:  3: { title: "Em Perrin", text: "Happy 30th!",
+                  media: [ { type: "audio", src: "notes/day3.m4a", label: "Voice note" },
+                           { type: "video", src: "notes/day3.mp4", poster: "notes/day3.jpg" } ] },
+   (notes/demo.mp4, demo-poster.jpg and demo.wav are working samples to copy from.)
    iPhone tips: Voice Memos -> Share -> Save to Files gives an .m4a; camera clips
    play best as .mp4 (H.264), kept short. */
 const DAYS = {
-  1: { title: "Demo door", text: "A message, a voice note and a video in one door. Swap these for the real thing.",
-       media: [ { type: "audio", src: "notes/demo.wav", label: "Voice note" },
-                { type: "video", src: "notes/demo.mp4", poster: "notes/demo-poster.jpg" } ] },
-  2: { title: "Day 2", text: "A text-only door." },
+  1: { title: "Carina", text: "A message from Carina is on its way." },
+  2: { title: "Em Perrin", text: "A message from Em Perrin is on its way." },
+  3: { title: "Emily Harding", text: "A message from Emily Harding is on its way." },
+  4: { title: "Eva", text: "A message from Eva is on its way." },
+  5: { title: "Gavin Pillinger", text: "A message from Gavin Pillinger is on its way." },
+  6: { title: "Hannah Pawsey", text: "A message from Hannah Pawsey is on its way." },
+  7: { title: "Jack Goodwin", text: "A message from Jack Goodwin is on its way." },
+  8: { title: "Sophie Thompson", text: "A message from Sophie Thompson is on its way." },
+  9: { title: "Manda, Grumpy and Bear", text: "A message from Manda, Grumpy and Bear is on its way." },
+  10: { title: "Stinky 1 and Stinky 2", text: "A message from Stinky 1 and Stinky 2 is on its way." },
+  11: { title: "Pappa Johns", text: "A message from Pappa Johns is on its way." },
+  12: { title: "Ben and Sarah", text: "A message from Ben and Sarah is on its way." },
+  13: { title: "Day 13", text: "Nothing here yet." },
+  14: { title: "Day 14", text: "Nothing here yet." },
+  15: { title: "Day 15", text: "Nothing here yet." },
   16:{ title: "Day 16", text: "Happy birthday!" }
 };
 /* --------------------------------------- */
