@@ -7,53 +7,63 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Haz's 30th">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#e7e2d9">
+<meta name="theme-color" content="#e9e5dc">
 <meta name="format-detection" content="telephone=no">
 <title>Haz's 30th Birthday Calendar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#e7e2d9;--ink:#3b2f27;--muted:#7a6f64;--paper:#f4f0e9;--blush:#dcb7a3;
-  --d0:#d9d0c1;--d1:#b9c0a8;--d2:#dcb7a3;--d3:#c4b9a9;--done:#d5d3ce}
+:root{--bg:#e9e5dc;--ink:#3a2733;--plum:#6d2e47;--muted:#85796f;--paper:#f4f1ea;--blush:#e5bfa8;--d1:#c2c99f;
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .32 0 0 0 0 .24 0 0 0 0 .22 0 0 0 .34 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 *{box-sizing:border-box}
 html{background:var(--bg);-webkit-text-size-adjust:100%}
-body{margin:0;min-height:100vh;min-height:100dvh;color:var(--ink);font:400 1rem/1.55 Jost,system-ui,-apple-system,sans-serif;
+body{margin:0;min-height:100vh;min-height:100dvh;color:var(--ink);font:300 1rem/1.6 Jost,system-ui,-apple-system,sans-serif;
   padding:calc(2.2rem + env(safe-area-inset-top)) calc(1rem + env(safe-area-inset-right)) calc(3rem + env(safe-area-inset-bottom)) calc(1rem + env(safe-area-inset-left));
   -webkit-tap-highlight-color:transparent;overscroll-behavior-y:none;
-  background-image:repeating-linear-gradient(0deg,rgba(90,75,60,.04) 0 1px,transparent 1px 3px),
-                   repeating-linear-gradient(90deg,rgba(90,75,60,.04) 0 1px,transparent 1px 3px)}
-main{max-width:48rem;margin:0 auto}
-.eyebrow{letter-spacing:.22em;text-transform:uppercase;font-size:.72rem;color:var(--muted);margin:0 0 .6rem;animation:fadeUp .7s both}
-h1{font:500 clamp(2.5rem,12vw,4.4rem)/1 "Cormorant Garamond",Georgia,serif;letter-spacing:-.01em;margin:0 0 .7rem;animation:fadeUp .7s .08s both}
-.sub{color:var(--muted);margin:0 0 1.6rem;max-width:30rem;animation:fadeUp .7s .16s both}
-.banner{background:var(--blush);padding:.45rem .9rem;border-radius:999px;margin:0 0 1rem;font-weight:500;display:inline-block}
-.hint{min-height:1.6rem;color:var(--ink);margin:0 0 .8rem;font-weight:500;animation:fadeUp .35s both}
+  background-color:var(--bg);background-repeat:no-repeat;
+  background-image:radial-gradient(60rem 34rem at 108% -6%,rgba(205,191,222,.7),transparent 62%),
+                   radial-gradient(46rem 30rem at -12% 12%,rgba(211,228,195,.75),transparent 60%),
+                   radial-gradient(50rem 30rem at 50% 108%,rgba(229,191,168,.55),transparent 62%)}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:var(--grain);opacity:.4;mix-blend-mode:multiply}
+main{position:relative;z-index:1;max-width:48rem;margin:0 auto}
+.seal{width:4.3rem;height:4.3rem;border-radius:50%;display:grid;place-items:center;margin:0 0 1.5rem;
+  font:500 1.85rem/1 "Cormorant Garamond",Georgia,serif;font-variant-numeric:lining-nums;color:var(--plum);text-shadow:0 1px 0 rgba(255,255,255,.4);
+  background:radial-gradient(circle at 34% 26%,#dde3bd,#bec79c 72%);
+  box-shadow:inset 0 2px 3px rgba(255,255,255,.6),inset 0 -5px 9px rgba(80,92,50,.2),0 12px 22px -10px rgba(58,39,51,.45);animation:fadeUp .7s both}
+.eyebrow{letter-spacing:.3em;text-transform:uppercase;font-size:.66rem;font-weight:400;color:var(--muted);margin:0 0 .8rem;animation:fadeUp .7s both}
+h1{font:300 clamp(2.6rem,12.5vw,4.6rem)/.98 "Cormorant Garamond",Georgia,serif;font-variant-numeric:lining-nums;letter-spacing:-.02em;margin:0 0 1rem;animation:fadeUp .7s .08s both}
+h1 em{font-style:italic;font-weight:300;color:var(--plum)}
+.sub{color:var(--muted);margin:0 0 1.8rem;max-width:26rem;animation:fadeUp .7s .16s both}
+.banner{background:#f0e0b2;padding:.45rem .9rem;border-radius:999px;margin:0 0 1rem;font-weight:500;display:inline-block}
+.hint{min-height:1.6rem;color:var(--plum);margin:0 0 .8rem;font-weight:400;animation:fadeUp .35s both}
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;list-style:none;margin:0;padding:0}
 @media(min-width:620px){.grid{grid-template-columns:repeat(8,1fr);gap:1rem}}
 .slot{position:relative;perspective:700px;animation:fadeUp .6s calc(.25s + var(--i)*45ms) both}
 .glow{position:absolute;inset:0;border-radius:999px 999px .5rem .5rem;opacity:0;transition:opacity .3s;
-  background:radial-gradient(circle at 50% 62%,#fff8e6,var(--blush) 58%,#d4a38a)}
+  background:radial-gradient(circle at 50% 62%,#fff6df,#ecd2ba 60%,#d9a98f)}
 .slot.swinging .glow{opacity:1}
 .door{all:unset;box-sizing:border-box;position:relative;cursor:pointer;display:grid;place-items:center;width:100%;aspect-ratio:3/4;
-  border-radius:999px 999px .5rem .5rem;font:500 clamp(1.6rem,7vw,2.3rem)/1 "Cormorant Garamond",Georgia,serif;
+  border-radius:999px 999px .5rem .5rem;font:500 clamp(1.6rem,7vw,2.3rem)/1 "Cormorant Garamond",Georgia,serif;font-variant-numeric:lining-nums;
   color:var(--ink);transform-origin:0 50%;touch-action:manipulation;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;
   transition:transform .65s cubic-bezier(.3,1.25,.5,1),background-color .4s,color .4s;
-  background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.22) 0 2px,transparent 2px 6px),linear-gradient(180deg,rgba(255,255,255,.18),rgba(59,47,39,.06))}
-.c0{background-color:var(--d0)}.c1{background-color:var(--d1)}.c2{background-color:var(--d2)}.c3{background-color:var(--d3)}
-.door::after{content:"";position:absolute;right:.7rem;top:58%;width:.38rem;height:.38rem;border-radius:50%;background:var(--ink);opacity:.4}
+  background-image:var(--grain),repeating-linear-gradient(90deg,rgba(255,255,255,.2) 0 1px,rgba(58,39,51,.035) 1px 4px),linear-gradient(180deg,rgba(255,255,255,.3),rgba(58,39,51,.07));
+  background-blend-mode:multiply,normal,normal;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 16px 20px -16px rgba(58,39,51,.55)}
+.c0{background-color:#d3e4c3}.c1{background-color:#f0e0b2}.c2{background-color:#cfc2de}.c3{background-color:#d9e7ec}.c4{background-color:#e5bfa8}.c5{background-color:#c2c99f}
+.door::after{content:"";position:absolute;right:.7rem;top:58%;width:.38rem;height:.38rem;border-radius:50%;background:var(--plum);opacity:.5}
 @media(hover:hover){.door:hover{transform:translateY(-3px)}}
 .door:active{transform:scale(.95);transition-duration:.12s}
 .door:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
-.door.locked{filter:saturate(.7);opacity:.8;cursor:default}
+.door.locked{filter:saturate(.85);opacity:.86;cursor:default}
 .door.locked::after,.door.open::after{display:none}
-.door.open{background-color:var(--done);color:#9b968e}
+.door.open{background-color:var(--plum);color:#f1e6dc}
 .door.today{animation:pulse 2.4s infinite}
 .door.swing{transform:rotateY(-78deg)}
 .door.shake{animation:shake .4s}
 .eyebrow.tests{margin:2rem 0 .8rem;animation:none}
 .grid.tests{grid-template-columns:repeat(4,1fr)}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(212,163,138,.75)}70%,100%{box-shadow:0 0 0 .9rem rgba(212,163,138,0)}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(109,46,71,.4)}70%,100%{box-shadow:0 0 0 .9rem rgba(109,46,71,0)}}
 @keyframes shake{20%{transform:translateX(-5px)}60%{transform:translateX(5px)}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 .confetti{position:fixed;width:0;height:0;pointer-events:none;z-index:30}
@@ -65,13 +75,13 @@ h1{font:500 clamp(2.5rem,12vw,4.4rem)/1 "Cormorant Garamond",Georgia,serif;lette
 .scrim.out{opacity:0;transition:opacity .26s}
 @keyframes fade{from{opacity:0}}
 .sheet{width:100%;max-width:34rem;max-height:88vh;max-height:88dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
-  background:var(--paper);border-radius:1.7rem 1.7rem 0 0;padding:0 1.4rem calc(1.4rem + env(safe-area-inset-bottom));
+  background:var(--grain),linear-gradient(180deg,#f7f4ee,#efebe2);background-blend-mode:multiply,normal;border-radius:1.7rem 1.7rem 0 0;padding:0 1.4rem calc(1.4rem + env(safe-area-inset-bottom));
   animation:rise .5s cubic-bezier(.2,.9,.25,1.05);transition:transform .26s ease}
 .sheet.out{animation:none;transform:translateY(100%)}
 @keyframes rise{from{transform:translateY(100%)}}
 .grab{touch-action:none;padding:.8rem 0 1rem;display:flex;justify-content:center;cursor:grab}
 .grab i{width:2.8rem;height:.3rem;border-radius:9px;background:#c9bfb1}
-.sheet h2{font:500 2.1rem/1.1 "Cormorant Garamond",Georgia,serif;margin:0 0 .6rem}
+.sheet h2{font:400 2.2rem/1.1 "Cormorant Garamond",Georgia,serif;letter-spacing:-.01em;margin:0 0 .6rem}
 .sheet p{margin:0 0 1rem;white-space:pre-line}
 .sheet img{display:block;width:100%;max-height:50vh;max-height:50dvh;object-fit:cover;border-radius:.9rem;margin:0 0 1rem}
 .sheet video{display:block;width:auto;height:auto;max-width:100%;max-height:62vh;max-height:62dvh;border-radius:1.1rem;background:var(--ink);margin:0 auto 1rem}
@@ -85,8 +95,8 @@ h1{font:500 clamp(2.5rem,12vw,4.4rem)/1 "Cormorant Garamond",Georgia,serif;lette
 .vn-play svg{width:1.05rem;height:1.05rem;fill:currentColor}
 .vn-wave{flex:1;display:flex;align-items:center;gap:2px;height:2.4rem;cursor:pointer;touch-action:none}
 .vn-wave i{flex:1;min-width:2px;border-radius:2px;background:#d8cfc3;transition:background-color .15s}
-.vn-wave i.on{background:var(--blush)}
-.vn.playing .vn-wave i.on{background:#c99a82}
+.vn-wave i.on{background:#c4a0b0}
+.vn.playing .vn-wave i.on{background:var(--plum)}
 .vn-time{flex:none;font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums;min-width:2.4rem;text-align:right}
 .close{all:unset;box-sizing:border-box;display:block;width:100%;text-align:center;cursor:pointer;margin-top:1.2rem;padding:.8rem;border-radius:999px;background:var(--ink);color:var(--paper);font-weight:500}
 .close:focus-visible{outline:3px solid var(--d1);outline-offset:2px}
@@ -152,7 +162,7 @@ const lockedMsg = d => TESTS[d] ? "Test door opens on " + TESTS[d].toLocaleDateS
   : "Door " + d + " opens on " + d + " November.";
 const labelOf = d => TESTS[d] ? "T" + d.slice(1) : d;
 const isToday = d => TESTS[d] ? (new Date().toDateString() === TESTS[d].toDateString()) : d === today;
-const COLORS = ["#dcb7a3", "#b9c0a8", "#d9d0c1", "#c4b9a9", "#f4e4c8", "#3b2f27"];
+const COLORS = ["#cfc2de", "#f0e0b2", "#d3e4c3", "#e5bfa8", "#6d2e47", "#c2c99f"];
 
 const fmt = t => !isFinite(t) ? "0:00" : Math.floor(t / 60) + ":" + String(Math.floor(t % 60)).padStart(2, "0");
 const BARS = 36;
@@ -253,7 +263,7 @@ function Sheet({ day, onClose }) {
 
 function Door({ d, opened, swing, shake, onTap }) {
   const lock = !unlocked(d);
-  const cls = ["door", "c" + (TESTS[d] ? 3 : (d - 1) % 4)];
+  const cls = ["door", "c" + (TESTS[d] ? 3 : (d - 1) % 6)];
   if (lock) cls.push("locked"); if (opened) cls.push("open");
   if (isToday(d) && !opened) cls.push("today");
   if (swing) cls.push("swing"); if (shake) cls.push("shake");
@@ -287,8 +297,9 @@ function App() {
     if (w) { if (unlocked(w)) { mark(w); setSheet(w); } else setHint(lockedMsg(w)); }
   }, []);
   return h(React.Fragment, null,
+    h("div", { className: "seal", "aria-hidden": "true" }, "30"),
     h("p", { className: "eyebrow" }, "1 – 16 November"),
-    h("h1", null, "Haz's 30th Birthday Calendar"),
+    h("h1", null, "Haz's ", h("em", null, "30th"), " Birthday Calendar"),
     h("p", { className: "sub" }, "One door a day. Tap today's door to open it."),
     preview && h("p", { className: "banner" }, "Preview mode: every door is unlocked."),
     h("p", { className: "hint", key: hint, role: "status" }, hint),
