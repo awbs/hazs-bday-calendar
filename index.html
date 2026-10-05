@@ -51,6 +51,8 @@ h1{font:500 clamp(2.5rem,12vw,4.4rem)/1 "Cormorant Garamond",Georgia,serif;lette
 .door.today{animation:pulse 2.4s infinite}
 .door.swing{transform:rotateY(-78deg)}
 .door.shake{animation:shake .4s}
+.eyebrow.tests{margin:2rem 0 .8rem;animation:none}
+.grid.tests{grid-template-columns:repeat(4,1fr)}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(212,163,138,.75)}70%,100%{box-shadow:0 0 0 .9rem rgba(212,163,138,0)}}
 @keyframes shake{20%{transform:translateX(-5px)}60%{transform:translateX(5px)}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
@@ -106,25 +108,50 @@ const YEAR = 2026;
    "embed"   -> src: "https://w.soundcloud.com/player/?url=..."
    Optional image: "images/day1.jpg" (+ alt) shows above the message.
    Leave media out for a text-only door. Days without an entry show a placeholder.
+   Example:  3: { title: "Em Perrin", text: "Happy 30th!",
+                  media: [ { type: "audio", src: "notes/day3.m4a", label: "Voice note" },
+                           { type: "video", src: "notes/day3.mp4", poster: "notes/day3.jpg" } ] },
+   (notes/demo.mp4, demo-poster.jpg and demo.wav are working samples to copy from.)
    iPhone tips: Voice Memos -> Share -> Save to Files gives an .m4a; camera clips
    play best as .mp4 (H.264), kept short. */
 const DAYS = {
-  1: { title: "Demo door", text: "A message, a voice note and a video in one door. Swap these for the real thing.",
-       media: [ { type: "audio", src: "notes/demo.wav", label: "Voice note" },
-                { type: "video", src: "notes/demo.mp4", poster: "notes/demo-poster.jpg" } ] },
-  2: { title: "Day 2", text: "A text-only door." },
-  16:{ title: "Day 16", text: "Happy birthday!" }
+  1: { title: "Carina", text: "A message from Carina is on its way." },
+  2: { title: "Em Perrin", text: "A message from Em Perrin is on its way." },
+  3: { title: "Emily Harding", text: "A message from Emily Harding is on its way." },
+  4: { title: "Eva", text: "A message from Eva is on its way." },
+  5: { title: "Gavin Pillinger", text: "A message from Gavin Pillinger is on its way." },
+  6: { title: "Hannah Pawsey", text: "A message from Hannah Pawsey is on its way." },
+  7: { title: "Jack Goodwin", text: "A message from Jack Goodwin is on its way." },
+  8: { title: "Sophie Thompson", text: "A message from Sophie Thompson is on its way." },
+  9: { title: "Manda, Grumpy and Bear", text: "A message from Manda, Grumpy and Bear is on its way." },
+  10: { title: "Stinky 1 and Stinky 2", text: "A message from Stinky 1 and Stinky 2 is on its way." },
+  11: { title: "Pappa Johns", text: "A message from Pappa Johns is on its way." },
+  12: { title: "Ben and Sarah", text: "A message from Ben and Sarah is on its way." },
+  13: { title: "Day 13", text: "Nothing here yet." },
+  14: { title: "Day 14", text: "Nothing here yet." },
+  15: { title: "Day 15", text: "Nothing here yet." },
+  16:{ title: "Day 16", text: "Happy birthday!" },
+  /* TEST DOORS: prove the date lock works. They hide themselves from 1 November, but delete these two
+     lines and the TESTS line below once you've checked. */
+  t1: { title: "Test door 1", text: "Unlocked: today's date has arrived, so the date check lets you in." },
+  t2: { title: "Test door 2", text: "Unlocked: tomorrow's date has arrived." }
 };
+const TESTS = { t1: new Date(2026, 9, 5), t2: new Date(2026, 9, 6) }; /* 5 and 6 October 2026, local midnight */
 /* --------------------------------------- */
 
 const { useState, useEffect, useRef, useCallback } = React;
 const h = React.createElement;
 const TOTAL = 16, KEY = "advent-opened-" + YEAR;
 const preview = new URLSearchParams(location.search).has("preview");
-const unlocked = d => preview || new Date() >= new Date(YEAR, 10, d);
+const opensAt = d => TESTS[d] || new Date(YEAR, 10, d);
+const unlocked = d => preview || new Date() >= opensAt(d);
+const showTests = new Date() < new Date(YEAR, 10, 1);
 const now = new Date();
 const today = !preview && now.getFullYear() === YEAR && now.getMonth() === 10 && now.getDate() <= TOTAL ? now.getDate() : 0;
-const lockedMsg = d => "Door " + d + " opens on " + d + " November.";
+const lockedMsg = d => TESTS[d] ? "Test door opens on " + TESTS[d].toLocaleDateString("en-GB", { day: "numeric", month: "long" }) + "."
+  : "Door " + d + " opens on " + d + " November.";
+const labelOf = d => TESTS[d] ? "T" + d.slice(1) : d;
+const isToday = d => TESTS[d] ? (new Date().toDateString() === TESTS[d].toDateString()) : d === today;
 const COLORS = ["#dcb7a3", "#b9c0a8", "#d9d0c1", "#c4b9a9", "#f4e4c8", "#3b2f27"];
 
 const fmt = t => !isFinite(t) ? "0:00" : Math.floor(t / 60) + ":" + String(Math.floor(t % 60)).padStart(2, "0");
@@ -226,14 +253,14 @@ function Sheet({ day, onClose }) {
 
 function Door({ d, opened, swing, shake, onTap }) {
   const lock = !unlocked(d);
-  const cls = ["door", "c" + ((d - 1) % 4)];
+  const cls = ["door", "c" + (TESTS[d] ? 3 : (d - 1) % 4)];
   if (lock) cls.push("locked"); if (opened) cls.push("open");
-  if (d === today && !opened) cls.push("today");
+  if (isToday(d) && !opened) cls.push("today");
   if (swing) cls.push("swing"); if (shake) cls.push("shake");
-  return h("li", { className: "slot" + (swing ? " swinging" : ""), style: { "--i": d } },
+  return h("li", { className: "slot" + (swing ? " swinging" : ""), style: { "--i": TESTS[d] ? 16 + Number(d.slice(1)) : d } },
     h("div", { className: "glow" }),
     h("button", { className: cls.join(" "), onClick: ev => onTap(d, ev.currentTarget),
-      "aria-label": "Door " + d + (lock ? ", locked until November " + d : opened ? ", opened" : "") }, d));
+      "aria-label": "Door " + labelOf(d) + (lock ? ", locked. " + lockedMsg(d) : opened ? ", opened" : "") }, labelOf(d)));
 }
 
 function App() {
@@ -255,8 +282,9 @@ function App() {
     setTimeout(() => { setSheet(d); setSwing(0); }, 650);
   };
   useEffect(() => { /* Deep link from QR codes: ?day=5 */
-    const w = parseInt(new URLSearchParams(location.search).get("day"), 10);
-    if (w >= 1 && w <= TOTAL) { if (unlocked(w)) { mark(w); setSheet(w); } else setHint(lockedMsg(w)); }
+    const q = new URLSearchParams(location.search).get("day"), n = parseInt(q, 10);
+    const w = TESTS[q] && showTests ? q : n >= 1 && n <= TOTAL ? n : 0;
+    if (w) { if (unlocked(w)) { mark(w); setSheet(w); } else setHint(lockedMsg(w)); }
   }, []);
   return h(React.Fragment, null,
     h("p", { className: "eyebrow" }, "1 – 16 November"),
@@ -267,6 +295,9 @@ function App() {
     h("ul", { className: "grid", style: { listStyle: "none", margin: 0, padding: 0 } },
       Array.from({ length: TOTAL }, (_, i) => i + 1).map(d =>
         h(Door, { key: d, d, opened: opened.includes(d), swing: swing === d, shake: shake === d, onTap: tap }))),
+    showTests && h("p", { className: "eyebrow tests" }, "Test doors (temporary)"),
+    showTests && h("ul", { className: "grid tests", style: { listStyle: "none", margin: 0, padding: 0 } },
+      Object.keys(TESTS).map(d => h(Door, { key: d, d, opened: opened.includes(d), swing: swing === d, shake: shake === d, onTap: tap }))),
     burst && h(Confetti, { key: burst.k, x: burst.x, y: burst.y }),
     sheet && h(Sheet, { day: sheet, onClose: () => setSheet(null) }));
 }
