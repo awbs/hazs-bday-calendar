@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Haz's birthday calendar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e7e2d9;--ink:#3b2f27;--muted:#7a6f64;--paper:#f4f0e9;--blush:#dcb7a3;
+  --d1:#d9d0c1;--d2:#b9c0a8;--d3:#dcb7a3;--d4:#c4b9a9;--done:#d5d3ce}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;min-height:100vh;color:var(--ink);font:400 1rem/1.55 Jost,system-ui,sans-serif;padding:3rem 1rem 3.5rem;
+  background-color:var(--bg);
+  background-image:repeating-linear-gradient(0deg,rgba(90,75,60,.04) 0 1px,transparent 1px 3px),
+                   repeating-linear-gradient(90deg,rgba(90,75,60,.04) 0 1px,transparent 1px 3px)}
+main{max-width:48rem;margin:0 auto}
+h1{font:500 clamp(2.4rem,9vw,4.2rem)/1.02 "Cormorant Garamond",Georgia,serif;letter-spacing:-.01em;margin:0 0 .6rem}
+.sub{color:var(--muted);margin:0 0 2.2rem;max-width:30rem}
+.banner{background:var(--blush);padding:.5rem .9rem;border-radius:999px;margin:0 0 1.5rem;font-weight:500;display:inline-block}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;list-style:none;margin:0;padding:0}
+@media(min-width:620px){.grid{grid-template-columns:repeat(8,1fr);gap:1rem}}
+.door{all:unset;box-sizing:border-box;cursor:pointer;display:grid;place-items:center;width:100%;aspect-ratio:3/4;
+  border-radius:999px 999px .5rem .5rem;font:500 clamp(1.6rem,6vw,2.3rem)/1 "Cormorant Garamond",Georgia,serif;
+  background-color:var(--d1);color:var(--ink);position:relative;transition:transform .15s,background-color .3s;
+  background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.22) 0 2px,transparent 2px 6px),
+                   linear-gradient(180deg,rgba(255,255,255,.18),rgba(59,47,39,.06))}
+.grid li:nth-child(4n+2) .door{background-color:var(--d2)}
+.grid li:nth-child(4n+3) .door{background-color:var(--d3)}
+.grid li:nth-child(4n+4) .door{background-color:var(--d4)}
+.door::after{content:"";position:absolute;right:.7rem;top:58%;width:.38rem;height:.38rem;border-radius:50%;background:var(--ink);opacity:.4}
+.door:hover{transform:translateY(-3px)}
+.door:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.door.locked{filter:saturate(.7);opacity:.8;cursor:default}
+.door.locked::after{display:none}
+.door.open,.grid li .door.open{background-color:var(--done);color:#9b968e}
+.door.open::after{display:none}
+.door.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.hint{min-height:1.5rem;color:var(--muted);margin:1.1rem 0 0}
+dialog{border:0;border-radius:1.4rem;padding:0;max-width:min(32rem,92vw);width:100%;background:var(--paper);color:var(--ink)}
+dialog::backdrop{background:rgba(59,47,39,.5)}
+.sheet{padding:1.5rem}
+.sheet h2{font:500 2rem/1.1 "Cormorant Garamond",Georgia,serif;margin:0 0 .6rem}
+.sheet p{margin:0 0 1rem;white-space:pre-line}
+.sheet img{display:block;width:100%;border-radius:.8rem;margin:0 0 1rem}
+.sheet audio{width:100%;accent-color:var(--ink)}
+.sheet video{width:100%;border-radius:.6rem;background:#000}
+.sheet iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:.6rem}
+.close{all:unset;cursor:pointer;margin-top:1.1rem;padding:.5rem 1.2rem;border-radius:999px;background:var(--ink);color:var(--paper);font-weight:500}
+.close:focus-visible{outline:3px solid var(--d2);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <h1>Haz's birthday calendar</h1>
+  <p class="sub">One door a day, 1 to 16 November. Tap today's door to open it.</p>
+  <div id="banner"></div>
+  <ul class="grid" id="grid"></ul>
+  <p class="hint" id="hint" role="status"></p>
+</main>
+
+<dialog id="dlg" aria-labelledby="dt">
+  <div class="sheet">
+    <h2 id="dt"></h2>
+    <p id="dx"></p>
+    <div id="dm"></div>
+    <button class="close" id="close">Close</button>
+  </div>
+</dialog>
+
+<script>
+/* ---------- EDIT THIS SECTION ---------- */
+const YEAR = 2026;
+
+/* One entry per day (1-16). media.type can be:
+   "audio"   -> src: "notes/day1.mp3"     (file in your repo)
+   "video"   -> src: "notes/day2.mp4"     (file in your repo)
+   "youtube" -> id:  "dQw4w9WgXcQ"        (unlisted video ID)
+   "embed"   -> src: "https://w.soundcloud.com/player/?url=..."  (any embed URL)
+   Optional image: "images/day1.jpg" shows above the message.
+   Leave media out for a text-only door. Days without an entry show a placeholder. */
+const DAYS = {
+  1: { title: "Demo door", text: "If you can hear a little chime, audio is working. Swap this for your own note.", media: { type: "audio", src: "notes/demo.wav" } },
+  2: { title: "Day 2", text: "A text-only door." },
+  16:{ title: "Day 16", text: "Happy birthday!" }
+};
+/* --------------------------------------- */
+
+const preview = new URLSearchParams(location.search).has("preview");
+const KEY = "advent-opened-" + YEAR;
+let opened = [];
+try { opened = JSON.parse(localStorage.getItem(KEY) || "[]"); } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(opened)); } catch (e) {} };
+
+const grid = document.getElementById("grid");
+const hint = document.getElementById("hint");
+const dlg = document.getElementById("dlg");
+const isUnlocked = d => preview || new Date() >= new Date(YEAR, 10, d);
+
+if (preview) {
+  document.getElementById("banner").innerHTML = '<p class="banner">Preview mode: every door is unlocked.</p>';
+}
+
+for (let d = 1; d <= 16; d++) {
+  const li = document.createElement("li");
+  const b = document.createElement("button");
+  b.className = "door";
+  b.textContent = d;
+  const unlocked = isUnlocked(d);
+  if (!unlocked) b.classList.add("locked");
+  if (opened.includes(d)) b.classList.add("open");
+  b.setAttribute("aria-label", "Door " + d + (unlocked ? "" : ", locked until November " + d));
+  b.addEventListener("click", () => {
+    if (!unlocked) {
+      hint.textContent = "Door " + d + " opens on " + d + " November.";
+      b.classList.remove("shake"); void b.offsetWidth; b.classList.add("shake");
+      return;
+    }
+    hint.textContent = "";
+    if (!opened.includes(d)) { opened.push(d); save(); }
+    b.classList.add("open");
+    show(d);
+  });
+  li.appendChild(b);
+  grid.appendChild(li);
+}
+
+function show(d) {
+  const e = DAYS[d] || { title: "Day " + d, text: "Nothing here yet." };
+  document.getElementById("dt").textContent = e.title || "Day " + d;
+  document.getElementById("dx").textContent = e.text || "";
+  const old = document.querySelector(".sheet > img"); if (old) old.remove();
+  if (e.image) { const im = document.createElement("img"); im.src = e.image; im.alt = e.alt || ""; document.getElementById("dt").after(im); }
+  const box = document.getElementById("dm");
+  box.textContent = "";
+  const m = e.media;
+  if (m) {
+    let el;
+    if (m.type === "audio" || m.type === "video") {
+      el = document.createElement(m.type);
+      el.controls = true; el.preload = "metadata"; el.src = m.src;
+      if (m.type === "video") el.playsInline = true;
+    } else if (m.type === "youtube" || m.type === "embed") {
+      el = document.createElement("iframe");
+      el.src = m.type === "youtube" ? "https://www.youtube.com/embed/" + encodeURIComponent(m.id) : m.src;
+      el.allow = "autoplay; encrypted-media; fullscreen";
+      el.title = e.title || "Media";
+    }
+    if (el) box.appendChild(el);
+  }
+  dlg.showModal();
+}
+
+/* Deep link: ?day=5 opens that door (or shows when it unlocks). Used by the QR codes. */
+const want = parseInt(new URLSearchParams(location.search).get("day"), 10);
+if (want >= 1 && want <= 16) grid.children[want - 1].firstChild.click();
+
+function stop() { document.getElementById("dm").textContent = ""; }
+document.getElementById("close").addEventListener("click", () => dlg.close());
+dlg.addEventListener("close", stop);
+dlg.addEventListener("click", ev => { if (ev.target === dlg) dlg.close(); });
+</script>
+</body>
+</html>

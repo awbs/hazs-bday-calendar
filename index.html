@@ -2,86 +2,98 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Haz's calendar">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#e7e2d9">
+<meta name="format-detection" content="telephone=no">
 <title>Haz's birthday calendar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&family=Jost:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#e7e2d9;--ink:#3b2f27;--muted:#7a6f64;--paper:#f4f0e9;--blush:#dcb7a3;
-  --d1:#d9d0c1;--d2:#b9c0a8;--d3:#dcb7a3;--d4:#c4b9a9;--done:#d5d3ce}
+  --d0:#d9d0c1;--d1:#b9c0a8;--d2:#dcb7a3;--d3:#c4b9a9;--done:#d5d3ce}
 *{box-sizing:border-box}
-html{background:var(--bg)}
-body{margin:0;min-height:100vh;color:var(--ink);font:400 1rem/1.55 Jost,system-ui,sans-serif;padding:3rem 1rem 3.5rem;
-  background-color:var(--bg);
+html{background:var(--bg);-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;min-height:100dvh;color:var(--ink);font:400 1rem/1.55 Jost,system-ui,-apple-system,sans-serif;
+  padding:calc(2.2rem + env(safe-area-inset-top)) calc(1rem + env(safe-area-inset-right)) calc(3rem + env(safe-area-inset-bottom)) calc(1rem + env(safe-area-inset-left));
+  -webkit-tap-highlight-color:transparent;overscroll-behavior-y:none;
   background-image:repeating-linear-gradient(0deg,rgba(90,75,60,.04) 0 1px,transparent 1px 3px),
                    repeating-linear-gradient(90deg,rgba(90,75,60,.04) 0 1px,transparent 1px 3px)}
 main{max-width:48rem;margin:0 auto}
-h1{font:500 clamp(2.4rem,9vw,4.2rem)/1.02 "Cormorant Garamond",Georgia,serif;letter-spacing:-.01em;margin:0 0 .6rem}
-.sub{color:var(--muted);margin:0 0 2.2rem;max-width:30rem}
-.banner{background:var(--blush);padding:.5rem .9rem;border-radius:999px;margin:0 0 1.5rem;font-weight:500;display:inline-block}
+.eyebrow{letter-spacing:.22em;text-transform:uppercase;font-size:.72rem;color:var(--muted);margin:0 0 .6rem;animation:fadeUp .7s both}
+h1{font:500 clamp(2.5rem,12vw,4.4rem)/1 "Cormorant Garamond",Georgia,serif;letter-spacing:-.01em;margin:0 0 .7rem;animation:fadeUp .7s .08s both}
+.sub{color:var(--muted);margin:0 0 1.6rem;max-width:30rem;animation:fadeUp .7s .16s both}
+.banner{background:var(--blush);padding:.45rem .9rem;border-radius:999px;margin:0 0 1rem;font-weight:500;display:inline-block}
+.hint{min-height:1.6rem;color:var(--ink);margin:0 0 .8rem;font-weight:500;animation:fadeUp .35s both}
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;list-style:none;margin:0;padding:0}
 @media(min-width:620px){.grid{grid-template-columns:repeat(8,1fr);gap:1rem}}
-.door{all:unset;box-sizing:border-box;cursor:pointer;display:grid;place-items:center;width:100%;aspect-ratio:3/4;
-  border-radius:999px 999px .5rem .5rem;font:500 clamp(1.6rem,6vw,2.3rem)/1 "Cormorant Garamond",Georgia,serif;
-  background-color:var(--d1);color:var(--ink);position:relative;transition:transform .15s,background-color .3s;
-  background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.22) 0 2px,transparent 2px 6px),
-                   linear-gradient(180deg,rgba(255,255,255,.18),rgba(59,47,39,.06))}
-.grid li:nth-child(4n+2) .door{background-color:var(--d2)}
-.grid li:nth-child(4n+3) .door{background-color:var(--d3)}
-.grid li:nth-child(4n+4) .door{background-color:var(--d4)}
+.slot{position:relative;perspective:700px;animation:fadeUp .6s calc(.25s + var(--i)*45ms) both}
+.glow{position:absolute;inset:0;border-radius:999px 999px .5rem .5rem;opacity:0;transition:opacity .3s;
+  background:radial-gradient(circle at 50% 62%,#fff8e6,var(--blush) 58%,#d4a38a)}
+.slot.swinging .glow{opacity:1}
+.door{all:unset;box-sizing:border-box;position:relative;cursor:pointer;display:grid;place-items:center;width:100%;aspect-ratio:3/4;
+  border-radius:999px 999px .5rem .5rem;font:500 clamp(1.6rem,7vw,2.3rem)/1 "Cormorant Garamond",Georgia,serif;
+  color:var(--ink);transform-origin:0 50%;touch-action:manipulation;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;
+  transition:transform .65s cubic-bezier(.3,1.25,.5,1),background-color .4s,color .4s;
+  background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.22) 0 2px,transparent 2px 6px),linear-gradient(180deg,rgba(255,255,255,.18),rgba(59,47,39,.06))}
+.c0{background-color:var(--d0)}.c1{background-color:var(--d1)}.c2{background-color:var(--d2)}.c3{background-color:var(--d3)}
 .door::after{content:"";position:absolute;right:.7rem;top:58%;width:.38rem;height:.38rem;border-radius:50%;background:var(--ink);opacity:.4}
-.door:hover{transform:translateY(-3px)}
+@media(hover:hover){.door:hover{transform:translateY(-3px)}}
+.door:active{transform:scale(.95);transition-duration:.12s}
 .door:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
 .door.locked{filter:saturate(.7);opacity:.8;cursor:default}
-.door.locked::after{display:none}
-.door.open,.grid li .door.open{background-color:var(--done);color:#9b968e}
-.door.open::after{display:none}
-.door.shake{animation:shake .35s}
-@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
-.hint{min-height:1.5rem;color:var(--muted);margin:1.1rem 0 0}
-dialog{border:0;border-radius:1.4rem;padding:0;max-width:min(32rem,92vw);width:100%;background:var(--paper);color:var(--ink)}
-dialog::backdrop{background:rgba(59,47,39,.5)}
-.sheet{padding:1.5rem}
-.sheet h2{font:500 2rem/1.1 "Cormorant Garamond",Georgia,serif;margin:0 0 .6rem}
+.door.locked::after,.door.open::after{display:none}
+.door.open{background-color:var(--done);color:#9b968e}
+.door.today{animation:pulse 2.4s infinite}
+.door.swing{transform:rotateY(-78deg)}
+.door.shake{animation:shake .4s}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(212,163,138,.75)}70%,100%{box-shadow:0 0 0 .9rem rgba(212,163,138,0)}}
+@keyframes shake{20%{transform:translateX(-5px)}60%{transform:translateX(5px)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.confetti{position:fixed;width:0;height:0;pointer-events:none;z-index:30}
+.confetti span{position:absolute;left:0;top:0;width:.5rem;height:.9rem;border-radius:2px;background:var(--c);
+  animation:pop .95s cubic-bezier(.15,.7,.3,1) forwards}
+@keyframes pop{0%{transform:translate(0,0) rotate(0) scale(.4);opacity:1}100%{transform:translate(var(--x),var(--y)) rotate(var(--r)) scale(1);opacity:0}}
+.scrim{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center;background:rgba(59,47,39,.45);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);animation:fade .3s}
+.scrim.out{opacity:0;transition:opacity .26s}
+@keyframes fade{from{opacity:0}}
+.sheet{width:100%;max-width:34rem;max-height:88vh;max-height:88dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  background:var(--paper);border-radius:1.7rem 1.7rem 0 0;padding:0 1.4rem calc(1.4rem + env(safe-area-inset-bottom));
+  animation:rise .5s cubic-bezier(.2,.9,.25,1.05);transition:transform .26s ease}
+.sheet.out{animation:none;transform:translateY(100%)}
+@keyframes rise{from{transform:translateY(100%)}}
+.grab{touch-action:none;padding:.8rem 0 1rem;display:flex;justify-content:center;cursor:grab}
+.grab i{width:2.8rem;height:.3rem;border-radius:9px;background:#c9bfb1}
+.sheet h2{font:500 2.1rem/1.1 "Cormorant Garamond",Georgia,serif;margin:0 0 .6rem}
 .sheet p{margin:0 0 1rem;white-space:pre-line}
-.sheet img{display:block;width:100%;border-radius:.8rem;margin:0 0 1rem}
+.sheet img{display:block;width:100%;max-height:50vh;max-height:50dvh;object-fit:cover;border-radius:.9rem;margin:0 0 1rem}
 .sheet audio{width:100%;accent-color:var(--ink)}
-.sheet video{width:100%;border-radius:.6rem;background:#000}
-.sheet iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:.6rem}
-.close{all:unset;cursor:pointer;margin-top:1.1rem;padding:.5rem 1.2rem;border-radius:999px;background:var(--ink);color:var(--paper);font-weight:500}
-.close:focus-visible{outline:3px solid var(--d2);outline-offset:2px}
+.sheet video{width:100%;border-radius:.7rem;background:#000}
+.sheet iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:.7rem}
+.close{all:unset;box-sizing:border-box;display:block;width:100%;text-align:center;cursor:pointer;margin-top:1.2rem;padding:.8rem;border-radius:999px;background:var(--ink);color:var(--paper);font-weight:500}
+.close:focus-visible{outline:3px solid var(--d1);outline-offset:2px}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<main>
-  <h1>Haz's birthday calendar</h1>
-  <p class="sub">One door a day, 1 to 16 November. Tap today's door to open it.</p>
-  <div id="banner"></div>
-  <ul class="grid" id="grid"></ul>
-  <p class="hint" id="hint" role="status"></p>
-</main>
-
-<dialog id="dlg" aria-labelledby="dt">
-  <div class="sheet">
-    <h2 id="dt"></h2>
-    <p id="dx"></p>
-    <div id="dm"></div>
-    <button class="close" id="close">Close</button>
-  </div>
-</dialog>
-
+<main id="root"></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
 <script>
 /* ---------- EDIT THIS SECTION ---------- */
 const YEAR = 2026;
 
 /* One entry per day (1-16). media.type can be:
-   "audio"   -> src: "notes/day1.mp3"     (file in your repo)
+   "audio"   -> src: "notes/day1.m4a"     (file in your repo)
    "video"   -> src: "notes/day2.mp4"     (file in your repo)
    "youtube" -> id:  "dQw4w9WgXcQ"        (unlisted video ID)
-   "embed"   -> src: "https://w.soundcloud.com/player/?url=..."  (any embed URL)
-   Optional image: "images/day1.jpg" shows above the message.
+   "embed"   -> src: "https://w.soundcloud.com/player/?url=..."
+   Optional image: "images/day1.jpg" (+ alt) shows above the message.
    Leave media out for a text-only door. Days without an entry show a placeholder. */
 const DAYS = {
   1: { title: "Demo door", text: "If you can hear a little chime, audio is working. Swap this for your own note.", media: { type: "audio", src: "notes/demo.wav" } },
@@ -90,79 +102,108 @@ const DAYS = {
 };
 /* --------------------------------------- */
 
+const { useState, useEffect, useRef, useCallback } = React;
+const h = React.createElement;
+const TOTAL = 16, KEY = "advent-opened-" + YEAR;
 const preview = new URLSearchParams(location.search).has("preview");
-const KEY = "advent-opened-" + YEAR;
-let opened = [];
-try { opened = JSON.parse(localStorage.getItem(KEY) || "[]"); } catch (e) {}
-const save = () => { try { localStorage.setItem(KEY, JSON.stringify(opened)); } catch (e) {} };
+const unlocked = d => preview || new Date() >= new Date(YEAR, 10, d);
+const now = new Date();
+const today = !preview && now.getFullYear() === YEAR && now.getMonth() === 10 && now.getDate() <= TOTAL ? now.getDate() : 0;
+const lockedMsg = d => "Door " + d + " opens on " + d + " November.";
+const COLORS = ["#dcb7a3", "#b9c0a8", "#d9d0c1", "#c4b9a9", "#f4e4c8", "#3b2f27"];
 
-const grid = document.getElementById("grid");
-const hint = document.getElementById("hint");
-const dlg = document.getElementById("dlg");
-const isUnlocked = d => preview || new Date() >= new Date(YEAR, 10, d);
-
-if (preview) {
-  document.getElementById("banner").innerHTML = '<p class="banner">Preview mode: every door is unlocked.</p>';
+function Media({ m }) {
+  if (!m) return null;
+  if (m.type === "audio") return h("audio", { controls: true, preload: "metadata", src: m.src });
+  if (m.type === "video") return h("video", { controls: true, playsInline: true, preload: "metadata", src: m.src });
+  if (m.type === "youtube" || m.type === "embed")
+    return h("iframe", { title: "Media", allowFullScreen: true, allow: "autoplay; encrypted-media; fullscreen",
+      src: m.type === "youtube" ? "https://www.youtube.com/embed/" + encodeURIComponent(m.id) + "?playsinline=1" : m.src });
+  return null;
 }
 
-for (let d = 1; d <= 16; d++) {
-  const li = document.createElement("li");
-  const b = document.createElement("button");
-  b.className = "door";
-  b.textContent = d;
-  const unlocked = isUnlocked(d);
-  if (!unlocked) b.classList.add("locked");
-  if (opened.includes(d)) b.classList.add("open");
-  b.setAttribute("aria-label", "Door " + d + (unlocked ? "" : ", locked until November " + d));
-  b.addEventListener("click", () => {
-    if (!unlocked) {
-      hint.textContent = "Door " + d + " opens on " + d + " November.";
-      b.classList.remove("shake"); void b.offsetWidth; b.classList.add("shake");
-      return;
-    }
-    hint.textContent = "";
-    if (!opened.includes(d)) { opened.push(d); save(); }
-    b.classList.add("open");
-    show(d);
+function Confetti({ x, y }) {
+  const [bits] = useState(() => Array.from({ length: 16 }, (_, i) => {
+    const a = (i / 16) * Math.PI * 2 + Math.random() * 0.4, r = 55 + Math.random() * 65;
+    return { c: COLORS[i % COLORS.length], x: Math.cos(a) * r + "px", y: Math.sin(a) * r + 38 + "px", r: Math.round(Math.random() * 540 - 270) + "deg" };
+  }));
+  return h("div", { className: "confetti", style: { left: x, top: y } },
+    bits.map((b, i) => h("span", { key: i, style: { "--c": b.c, "--x": b.x, "--y": b.y, "--r": b.r } })));
+}
+
+function Sheet({ day, onClose }) {
+  const e = DAYS[day] || { title: "Day " + day, text: "Nothing here yet." };
+  const [dy, setDy] = useState(0), [drag, setDrag] = useState(false), [out, setOut] = useState(false);
+  const y0 = useRef(0), btn = useRef(null);
+  const close = useCallback(() => { setOut(true); setTimeout(onClose, 260); }, [onClose]);
+  useEffect(() => {
+    if (btn.current) btn.current.focus({ preventScroll: true });
+    const k = ev => ev.key === "Escape" && close();
+    addEventListener("keydown", k);
+    document.body.style.overflow = "hidden";
+    return () => { removeEventListener("keydown", k); document.body.style.overflow = ""; };
+  }, [close]);
+  const down = ev => { y0.current = ev.clientY; setDrag(true); ev.currentTarget.setPointerCapture(ev.pointerId); };
+  const move = ev => { if (drag) setDy(Math.max(0, ev.clientY - y0.current)); };
+  const up = () => { setDrag(false); if (dy > 110) close(); else setDy(0); };
+  return h("div", { className: "scrim" + (out ? " out" : ""), onClick: close },
+    h("section", { className: "sheet" + (out ? " out" : ""), role: "dialog", "aria-modal": "true", "aria-labelledby": "st",
+      style: out ? undefined : { transform: "translateY(" + dy + "px)", transition: drag ? "none" : undefined }, onClick: ev => ev.stopPropagation() },
+      h("div", { className: "grab", onPointerDown: down, onPointerMove: move, onPointerUp: up, onPointerCancel: up }, h("i")),
+      e.image && h("img", { src: e.image, alt: e.alt || "" }),
+      h("h2", { id: "st" }, e.title || "Day " + day),
+      e.text && h("p", null, e.text),
+      h(Media, { m: e.media }),
+      h("button", { className: "close", ref: btn, onClick: close }, "Close")));
+}
+
+function Door({ d, opened, swing, shake, onTap }) {
+  const lock = !unlocked(d);
+  const cls = ["door", "c" + ((d - 1) % 4)];
+  if (lock) cls.push("locked"); if (opened) cls.push("open");
+  if (d === today && !opened) cls.push("today");
+  if (swing) cls.push("swing"); if (shake) cls.push("shake");
+  return h("li", { className: "slot" + (swing ? " swinging" : ""), style: { "--i": d } },
+    h("div", { className: "glow" }),
+    h("button", { className: cls.join(" "), onClick: ev => onTap(d, ev.currentTarget),
+      "aria-label": "Door " + d + (lock ? ", locked until November " + d : opened ? ", opened" : "") }, d));
+}
+
+function App() {
+  const [opened, setOpened] = useState(() => { try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch (e) { return []; } });
+  const [sheet, setSheet] = useState(null), [swing, setSwing] = useState(0), [shake, setShake] = useState(0);
+  const [hint, setHint] = useState(""), [burst, setBurst] = useState(null);
+  const mark = d => setOpened(o => {
+    if (o.includes(d)) return o;
+    const n = o.concat(d); try { localStorage.setItem(KEY, JSON.stringify(n)); } catch (e) {} return n;
   });
-  li.appendChild(b);
-  grid.appendChild(li);
+  const tap = (d, el) => {
+    if (!unlocked(d)) { setHint(lockedMsg(d)); setShake(d); setTimeout(() => setShake(0), 400); return; }
+    setHint("");
+    if (opened.includes(d)) { setSheet(d); return; }
+    const r = el.getBoundingClientRect();
+    setBurst({ x: r.left + r.width / 2, y: r.top + r.height / 2, k: Date.now() });
+    setTimeout(() => setBurst(null), 1000);
+    setSwing(d); mark(d);
+    setTimeout(() => { setSheet(d); setSwing(0); }, 650);
+  };
+  useEffect(() => { /* Deep link from QR codes: ?day=5 */
+    const w = parseInt(new URLSearchParams(location.search).get("day"), 10);
+    if (w >= 1 && w <= TOTAL) { if (unlocked(w)) { mark(w); setSheet(w); } else setHint(lockedMsg(w)); }
+  }, []);
+  return h(React.Fragment, null,
+    h("p", { className: "eyebrow" }, "1 – 16 November"),
+    h("h1", null, "Haz's birthday calendar"),
+    h("p", { className: "sub" }, "One door a day. Tap today's door to open it."),
+    preview && h("p", { className: "banner" }, "Preview mode: every door is unlocked."),
+    h("p", { className: "hint", key: hint, role: "status" }, hint),
+    h("ul", { className: "grid", style: { listStyle: "none", margin: 0, padding: 0 } },
+      Array.from({ length: TOTAL }, (_, i) => i + 1).map(d =>
+        h(Door, { key: d, d, opened: opened.includes(d), swing: swing === d, shake: shake === d, onTap: tap }))),
+    burst && h(Confetti, { key: burst.k, x: burst.x, y: burst.y }),
+    sheet && h(Sheet, { day: sheet, onClose: () => setSheet(null) }));
 }
-
-function show(d) {
-  const e = DAYS[d] || { title: "Day " + d, text: "Nothing here yet." };
-  document.getElementById("dt").textContent = e.title || "Day " + d;
-  document.getElementById("dx").textContent = e.text || "";
-  const old = document.querySelector(".sheet > img"); if (old) old.remove();
-  if (e.image) { const im = document.createElement("img"); im.src = e.image; im.alt = e.alt || ""; document.getElementById("dt").after(im); }
-  const box = document.getElementById("dm");
-  box.textContent = "";
-  const m = e.media;
-  if (m) {
-    let el;
-    if (m.type === "audio" || m.type === "video") {
-      el = document.createElement(m.type);
-      el.controls = true; el.preload = "metadata"; el.src = m.src;
-      if (m.type === "video") el.playsInline = true;
-    } else if (m.type === "youtube" || m.type === "embed") {
-      el = document.createElement("iframe");
-      el.src = m.type === "youtube" ? "https://www.youtube.com/embed/" + encodeURIComponent(m.id) : m.src;
-      el.allow = "autoplay; encrypted-media; fullscreen";
-      el.title = e.title || "Media";
-    }
-    if (el) box.appendChild(el);
-  }
-  dlg.showModal();
-}
-
-/* Deep link: ?day=5 opens that door (or shows when it unlocks). Used by the QR codes. */
-const want = parseInt(new URLSearchParams(location.search).get("day"), 10);
-if (want >= 1 && want <= 16) grid.children[want - 1].firstChild.click();
-
-function stop() { document.getElementById("dm").textContent = ""; }
-document.getElementById("close").addEventListener("click", () => dlg.close());
-dlg.addEventListener("close", stop);
-dlg.addEventListener("click", ev => { if (ev.target === dlg) dlg.close(); });
+ReactDOM.createRoot(document.getElementById("root")).render(h(App));
 </script>
 </body>
 </html>
