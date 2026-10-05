@@ -72,9 +72,20 @@ h1{font:500 clamp(2.5rem,12vw,4.4rem)/1 "Cormorant Garamond",Georgia,serif;lette
 .sheet h2{font:500 2.1rem/1.1 "Cormorant Garamond",Georgia,serif;margin:0 0 .6rem}
 .sheet p{margin:0 0 1rem;white-space:pre-line}
 .sheet img{display:block;width:100%;max-height:50vh;max-height:50dvh;object-fit:cover;border-radius:.9rem;margin:0 0 1rem}
-.sheet audio{width:100%;accent-color:var(--ink)}
-.sheet video{width:100%;border-radius:.7rem;background:#000}
-.sheet iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:.7rem}
+.sheet video{display:block;width:auto;height:auto;max-width:100%;max-height:62vh;max-height:62dvh;border-radius:1.1rem;background:var(--ink);margin:0 auto 1rem}
+.sheet iframe{display:block;width:100%;aspect-ratio:16/9;border:0;border-radius:1.1rem;margin:0 0 1rem}
+.cap{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:0 0 .45rem}
+.vn{display:flex;align-items:center;gap:.8rem;background:#fff;border-radius:999px;padding:.5rem 1.1rem .5rem .5rem;margin:0 0 1rem;
+  box-shadow:0 1px 0 rgba(59,47,39,.06),0 8px 24px -14px rgba(59,47,39,.45)}
+.vn-play{all:unset;flex:none;display:grid;place-items:center;width:2.9rem;height:2.9rem;border-radius:50%;background:var(--ink);color:var(--paper);cursor:pointer;touch-action:manipulation}
+.vn-play:active{transform:scale(.92)}
+.vn-play:focus-visible{outline:3px solid var(--d1);outline-offset:2px}
+.vn-play svg{width:1.05rem;height:1.05rem;fill:currentColor}
+.vn-wave{flex:1;display:flex;align-items:center;gap:2px;height:2.4rem;cursor:pointer;touch-action:none}
+.vn-wave i{flex:1;min-width:2px;border-radius:2px;background:#d8cfc3;transition:background-color .15s}
+.vn-wave i.on{background:var(--blush)}
+.vn.playing .vn-wave i.on{background:#c99a82}
+.vn-time{flex:none;font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums;min-width:2.4rem;text-align:right}
 .close{all:unset;box-sizing:border-box;display:block;width:100%;text-align:center;cursor:pointer;margin-top:1.2rem;padding:.8rem;border-radius:999px;background:var(--ink);color:var(--paper);font-weight:500}
 .close:focus-visible{outline:3px solid var(--d1);outline-offset:2px}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -88,15 +99,19 @@ h1{font:500 clamp(2.5rem,12vw,4.4rem)/1 "Cormorant Garamond",Georgia,serif;lette
 /* ---------- EDIT THIS SECTION ---------- */
 const YEAR = 2026;
 
-/* One entry per day (1-16). media.type can be:
-   "audio"   -> src: "notes/day1.m4a"     (file in your repo)
-   "video"   -> src: "notes/day2.mp4"     (file in your repo)
+/* One entry per day (1-16). media is one item or a list of items:
+   "audio"   -> src: "notes/day1.m4a"     voice note (optional label: "from Mum")
+   "video"   -> src: "notes/day2.mp4"     (optional poster: "notes/day2.jpg")
    "youtube" -> id:  "dQw4w9WgXcQ"        (unlisted video ID)
    "embed"   -> src: "https://w.soundcloud.com/player/?url=..."
    Optional image: "images/day1.jpg" (+ alt) shows above the message.
-   Leave media out for a text-only door. Days without an entry show a placeholder. */
+   Leave media out for a text-only door. Days without an entry show a placeholder.
+   iPhone tips: Voice Memos -> Share -> Save to Files gives an .m4a; camera clips
+   play best as .mp4 (H.264), kept short. */
 const DAYS = {
-  1: { title: "Demo door", text: "If you can hear a little chime, audio is working. Swap this for your own note.", media: { type: "audio", src: "notes/demo.wav" } },
+  1: { title: "Demo door", text: "A message, a voice note and a video in one door. Swap these for the real thing.",
+       media: [ { type: "audio", src: "notes/demo.wav", label: "Voice note" },
+                { type: "video", src: "notes/demo.mp4", poster: "notes/demo-poster.jpg" } ] },
   2: { title: "Day 2", text: "A text-only door." },
   16:{ title: "Day 16", text: "Happy birthday!" }
 };
@@ -112,10 +127,60 @@ const today = !preview && now.getFullYear() === YEAR && now.getMonth() === 10 &&
 const lockedMsg = d => "Door " + d + " opens on " + d + " November.";
 const COLORS = ["#dcb7a3", "#b9c0a8", "#d9d0c1", "#c4b9a9", "#f4e4c8", "#3b2f27"];
 
+const fmt = t => !isFinite(t) ? "0:00" : Math.floor(t / 60) + ":" + String(Math.floor(t % 60)).padStart(2, "0");
+const BARS = 36;
+function fakePeaks(src) { /* stable placeholder waveform until the real one is decoded */
+  let s = 0; for (const c of src) s = (s * 31 + c.charCodeAt(0)) >>> 0;
+  return Array.from({ length: BARS }, (_, i) => { s = (s * 1103515245 + 12345) >>> 0; return .25 + .6 * Math.abs(Math.sin(i / 3)) * (.5 + (s % 1000) / 2000); });
+}
+
+function VoiceNote({ src, label }) {
+  const a = useRef(null), wave = useRef(null);
+  const [playing, setPlaying] = useState(false), [t, setT] = useState(0), [dur, setDur] = useState(0);
+  const [peaks, setPeaks] = useState(() => fakePeaks(src));
+  useEffect(() => { /* draw the real waveform when the file is reachable (not on file://) */
+    let dead = false;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC || location.protocol === "file:") return;
+    fetch(src).then(r => r.arrayBuffer()).then(buf => {
+      const ctx = new AC();
+      return new Promise((ok, no) => ctx.decodeAudioData(buf, ok, no)).finally(() => ctx.close && ctx.close());
+    }).then(b => {
+      const d = b.getChannelData(0), step = Math.floor(d.length / BARS) || 1, out = [];
+      for (let i = 0; i < BARS; i++) { let m = 0; for (let j = i * step; j < (i + 1) * step && j < d.length; j++) m = Math.max(m, Math.abs(d[j])); out.push(m); }
+      const top = Math.max(...out) || 1;
+      if (!dead) setPeaks(out.map(v => .15 + .85 * v / top));
+    }).catch(() => {});
+    return () => { dead = true; };
+  }, [src]);
+  const toggle = () => { const el = a.current; if (el.paused) el.play().catch(() => {}); else el.pause(); };
+  const seek = ev => {
+    const el = a.current, r = wave.current.getBoundingClientRect();
+    if (!isFinite(el.duration)) return;
+    el.currentTime = Math.min(1, Math.max(0, (ev.clientX - r.left) / r.width)) * el.duration; setT(el.currentTime);
+  };
+  const pct = dur ? t / dur : 0;
+  return h(React.Fragment, null,
+    label && h("p", { className: "cap" }, label),
+    h("div", { className: "vn" + (playing ? " playing" : "") },
+      h("audio", { ref: a, src, preload: "metadata",
+        onPlay: () => setPlaying(true), onPause: () => setPlaying(false),
+        onEnded: () => { setPlaying(false); setT(0); a.current.currentTime = 0; },
+        onTimeUpdate: e => setT(e.target.currentTime), onLoadedMetadata: e => setDur(e.target.duration), onDurationChange: e => setDur(e.target.duration) }),
+      h("button", { className: "vn-play", onClick: toggle, "aria-label": playing ? "Pause voice note" : "Play voice note" },
+        h("svg", { viewBox: "0 0 24 24", "aria-hidden": "true" },
+          h("path", { d: playing ? "M6 4h4v16H6zM14 4h4v16h-4z" : "M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5z" }))),
+      h("div", { className: "vn-wave", ref: wave, role: "slider", "aria-label": "Seek", "aria-valuemin": 0, "aria-valuemax": Math.round(dur || 0), "aria-valuenow": Math.round(t),
+          onPointerDown: ev => { ev.currentTarget.setPointerCapture(ev.pointerId); seek(ev); }, onPointerMove: ev => ev.buttons && seek(ev) },
+        peaks.map((p, i) => h("i", { key: i, className: (i + .5) / BARS <= pct ? "on" : "", style: { height: Math.round(p * 100) + "%" } }))),
+      h("span", { className: "vn-time" }, fmt(playing || t ? t : dur))));
+}
+
 function Media({ m }) {
   if (!m) return null;
-  if (m.type === "audio") return h("audio", { controls: true, preload: "metadata", src: m.src });
-  if (m.type === "video") return h("video", { controls: true, playsInline: true, preload: "metadata", src: m.src });
+  if (Array.isArray(m)) return m.map((x, i) => h(Media, { key: i, m: x }));
+  if (m.type === "audio") return h(VoiceNote, { src: m.src, label: m.label });
+  if (m.type === "video") return h("video", { controls: true, playsInline: true, preload: "metadata", poster: m.poster, src: m.src + (m.poster ? "" : "#t=0.1") });
   if (m.type === "youtube" || m.type === "embed")
     return h("iframe", { title: "Media", allowFullScreen: true, allow: "autoplay; encrypted-media; fullscreen",
       src: m.type === "youtube" ? "https://www.youtube.com/embed/" + encodeURIComponent(m.id) + "?playsinline=1" : m.src });
@@ -139,9 +204,11 @@ function Sheet({ day, onClose }) {
   useEffect(() => {
     if (btn.current) btn.current.focus({ preventScroll: true });
     const k = ev => ev.key === "Escape" && close();
+    const solo = ev => document.querySelectorAll("audio,video").forEach(m => m !== ev.target && m.pause()); /* one thing plays at a time */
     addEventListener("keydown", k);
+    document.addEventListener("play", solo, true);
     document.body.style.overflow = "hidden";
-    return () => { removeEventListener("keydown", k); document.body.style.overflow = ""; };
+    return () => { removeEventListener("keydown", k); document.removeEventListener("play", solo, true); document.body.style.overflow = ""; };
   }, [close]);
   const down = ev => { y0.current = ev.clientY; setDrag(true); ev.currentTarget.setPointerCapture(ev.pointerId); };
   const move = ev => { if (drag) setDy(Math.max(0, ev.clientY - y0.current)); };
