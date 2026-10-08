@@ -27,10 +27,6 @@ body{margin:0;min-height:100vh;min-height:100dvh;color:var(--ink);font:300 1rem/
                    radial-gradient(50rem 30rem at 50% 108%,rgba(229,191,168,.55),transparent 62%)}
 body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:var(--grain);opacity:.4;mix-blend-mode:multiply}
 main{position:relative;z-index:1;max-width:48rem;margin:0 auto}
-.seal{width:4.3rem;height:4.3rem;border-radius:50%;display:grid;place-items:center;margin:0 0 1.5rem;
-  font:500 1.85rem/1 "Cormorant Garamond",Georgia,serif;font-variant-numeric:lining-nums;color:var(--plum);text-shadow:0 1px 0 rgba(255,255,255,.4);
-  background:radial-gradient(circle at 34% 26%,#dde3bd,#bec79c 72%);
-  box-shadow:inset 0 2px 3px rgba(255,255,255,.6),inset 0 -5px 9px rgba(80,92,50,.2),0 12px 22px -10px rgba(58,39,51,.45);animation:fadeUp .7s both}
 .eyebrow{letter-spacing:.3em;text-transform:uppercase;font-size:.66rem;font-weight:400;color:var(--muted);margin:0 0 .8rem;animation:fadeUp .7s both}
 h1{font:300 clamp(2.6rem,12.5vw,4.6rem)/.98 "Cormorant Garamond",Georgia,serif;font-variant-numeric:lining-nums;letter-spacing:-.02em;margin:0 0 1rem;animation:fadeUp .7s .08s both}
 h1 em{font-style:italic;font-weight:300;color:var(--plum)}
@@ -61,8 +57,6 @@ h1 em{font-style:italic;font-weight:300;color:var(--plum)}
 .door.today{animation:pulse 2.4s infinite}
 .door.swing{transform:rotateY(-78deg)}
 .door.shake{animation:shake .4s}
-.eyebrow.tests{margin:2rem 0 .8rem;animation:none}
-.grid.tests{grid-template-columns:repeat(4,1fr)}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(109,46,71,.4)}70%,100%{box-shadow:0 0 0 .9rem rgba(109,46,71,0)}}
 @keyframes shake{20%{transform:translateX(-5px)}60%{transform:translateX(5px)}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
@@ -140,28 +134,18 @@ const DAYS = {
   13: { title: "Day 13", text: "Nothing here yet." },
   14: { title: "Day 14", text: "Nothing here yet." },
   15: { title: "Day 15", text: "Nothing here yet." },
-  16:{ title: "Day 16", text: "Happy birthday!" },
-  /* TEST DOORS: prove the date lock works. They hide themselves from 1 November, but delete these two
-     lines and the TESTS line below once you've checked. */
-  t1: { title: "Test door 1", text: "Unlocked: today's date has arrived, so the date check lets you in." },
-  t2: { title: "Test door 2", text: "Unlocked: tomorrow's date has arrived." }
+  16:{ title: "Day 16", text: "Happy birthday!" }
 };
-const TESTS = { t1: new Date(2026, 9, 5), t2: new Date(2026, 9, 6) }; /* 5 and 6 October 2026, local midnight */
 /* --------------------------------------- */
 
 const { useState, useEffect, useRef, useCallback } = React;
 const h = React.createElement;
 const TOTAL = 16, KEY = "advent-opened-" + YEAR;
 const preview = new URLSearchParams(location.search).has("preview");
-const opensAt = d => TESTS[d] || new Date(YEAR, 10, d);
-const unlocked = d => preview || new Date() >= opensAt(d);
-const showTests = new Date() < new Date(YEAR, 10, 1);
+const unlocked = d => preview || new Date() >= new Date(YEAR, 10, d);
 const now = new Date();
 const today = !preview && now.getFullYear() === YEAR && now.getMonth() === 10 && now.getDate() <= TOTAL ? now.getDate() : 0;
-const lockedMsg = d => TESTS[d] ? "Test door opens on " + TESTS[d].toLocaleDateString("en-GB", { day: "numeric", month: "long" }) + "."
-  : "Door " + d + " opens on " + d + " November.";
-const labelOf = d => TESTS[d] ? "T" + d.slice(1) : d;
-const isToday = d => TESTS[d] ? (new Date().toDateString() === TESTS[d].toDateString()) : d === today;
+const lockedMsg = d => "Door " + d + " opens on " + d + " November.";
 const COLORS = ["#cfc2de", "#f0e0b2", "#d3e4c3", "#e5bfa8", "#6d2e47", "#c2c99f"];
 
 const fmt = t => !isFinite(t) ? "0:00" : Math.floor(t / 60) + ":" + String(Math.floor(t % 60)).padStart(2, "0");
@@ -263,14 +247,14 @@ function Sheet({ day, onClose }) {
 
 function Door({ d, opened, swing, shake, onTap }) {
   const lock = !unlocked(d);
-  const cls = ["door", "c" + (TESTS[d] ? 3 : (d - 1) % 6)];
+  const cls = ["door", "c" + ((d - 1) % 6)];
   if (lock) cls.push("locked"); if (opened) cls.push("open");
-  if (isToday(d) && !opened) cls.push("today");
+  if (d === today && !opened) cls.push("today");
   if (swing) cls.push("swing"); if (shake) cls.push("shake");
-  return h("li", { className: "slot" + (swing ? " swinging" : ""), style: { "--i": TESTS[d] ? 16 + Number(d.slice(1)) : d } },
+  return h("li", { className: "slot" + (swing ? " swinging" : ""), style: { "--i": d } },
     h("div", { className: "glow" }),
     h("button", { className: cls.join(" "), onClick: ev => onTap(d, ev.currentTarget),
-      "aria-label": "Door " + labelOf(d) + (lock ? ", locked. " + lockedMsg(d) : opened ? ", opened" : "") }, labelOf(d)));
+      "aria-label": "Door " + d + (lock ? ", locked until November " + d : opened ? ", opened" : "") }, d));
 }
 
 function App() {
@@ -292,12 +276,10 @@ function App() {
     setTimeout(() => { setSheet(d); setSwing(0); }, 650);
   };
   useEffect(() => { /* Deep link from QR codes: ?day=5 */
-    const q = new URLSearchParams(location.search).get("day"), n = parseInt(q, 10);
-    const w = TESTS[q] && showTests ? q : n >= 1 && n <= TOTAL ? n : 0;
-    if (w) { if (unlocked(w)) { mark(w); setSheet(w); } else setHint(lockedMsg(w)); }
+    const w = parseInt(new URLSearchParams(location.search).get("day"), 10);
+    if (w >= 1 && w <= TOTAL) { if (unlocked(w)) { mark(w); setSheet(w); } else setHint(lockedMsg(w)); }
   }, []);
   return h(React.Fragment, null,
-    h("div", { className: "seal", "aria-hidden": "true" }, "30"),
     h("p", { className: "eyebrow" }, "1 – 16 November"),
     h("h1", null, "Haz's ", h("em", null, "30th"), " Birthday Calendar"),
     h("p", { className: "sub" }, "One door a day. Tap today's door to open it."),
@@ -306,9 +288,6 @@ function App() {
     h("ul", { className: "grid", style: { listStyle: "none", margin: 0, padding: 0 } },
       Array.from({ length: TOTAL }, (_, i) => i + 1).map(d =>
         h(Door, { key: d, d, opened: opened.includes(d), swing: swing === d, shake: shake === d, onTap: tap }))),
-    showTests && h("p", { className: "eyebrow tests" }, "Test doors (temporary)"),
-    showTests && h("ul", { className: "grid tests", style: { listStyle: "none", margin: 0, padding: 0 } },
-      Object.keys(TESTS).map(d => h(Door, { key: d, d, opened: opened.includes(d), swing: swing === d, shake: shake === d, onTap: tap }))),
     burst && h(Confetti, { key: burst.k, x: burst.x, y: burst.y }),
     sheet && h(Sheet, { day: sheet, onClose: () => setSheet(null) }));
 }
