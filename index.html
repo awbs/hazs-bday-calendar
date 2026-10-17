@@ -25,17 +25,47 @@ body{margin:0;min-height:100vh;min-height:100dvh;color:var(--ink);font:300 1rem/
   background-image:radial-gradient(60rem 34rem at 108% -6%,rgba(205,191,222,.7),transparent 62%),
                    radial-gradient(46rem 30rem at -12% 12%,rgba(211,228,195,.75),transparent 60%),
                    radial-gradient(50rem 30rem at 50% 108%,rgba(229,191,168,.55),transparent 62%)}
-body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:var(--grain);opacity:.4;mix-blend-mode:multiply}
-main{position:relative;z-index:1;max-width:48rem;margin:0 auto}
+body::before{content:"";position:fixed;inset:0;z-index:1;pointer-events:none;background:var(--grain);opacity:.4;mix-blend-mode:multiply}
+main{position:relative;z-index:2;max-width:48rem;margin:0 auto}
+/* drifting colour + rising balloons behind everything */
+.sky{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.sky b{position:absolute;width:70vmax;height:70vmax;border-radius:50%;opacity:.55;animation:drift 28s ease-in-out infinite alternate}
+.sky b:nth-child(1){left:-30vmax;top:-25vmax;background:radial-gradient(circle,rgba(211,228,195,.9),transparent 62%)}
+.sky b:nth-child(2){right:-32vmax;top:-10vmax;background:radial-gradient(circle,rgba(205,191,222,.9),transparent 62%);animation-duration:34s;animation-direction:alternate-reverse}
+.sky b:nth-child(3){left:10vmax;bottom:-40vmax;background:radial-gradient(circle,rgba(240,224,178,.85),transparent 62%);animation-duration:40s}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}50%{transform:translate(8vmax,6vmax) scale(1.12)}100%{transform:translate(-6vmax,10vmax) scale(.95)}}
+.balloon{position:absolute;bottom:-9rem;left:var(--l);width:calc(2.4rem*var(--s));height:calc(3rem*var(--s));border-radius:50% 50% 48% 52%/60% 60% 40% 40%;
+  background:radial-gradient(circle at 34% 28%,rgba(255,255,255,.75),transparent 28%),var(--c);opacity:.55;
+  box-shadow:inset -.35rem -.5rem .8rem rgba(58,39,51,.1);animation:float var(--d) linear var(--dl) infinite}
+.balloon::after{content:"";position:absolute;top:100%;left:50%;width:1px;height:3.4rem;background:linear-gradient(rgba(58,39,51,.35),transparent)}
+@keyframes float{0%{transform:translate(0,0) rotate(-5deg)}25%{transform:translate(1.4rem,-32vh) rotate(4deg)}50%{transform:translate(-.6rem,-64vh) rotate(-3deg)}75%{transform:translate(1rem,-96vh) rotate(5deg)}100%{transform:translate(0,-130vh) rotate(-4deg)}}
 .eyebrow{letter-spacing:.3em;text-transform:uppercase;font-size:.66rem;font-weight:400;color:var(--muted);margin:0 0 .8rem;animation:fadeUp .7s both}
-h1{font:300 clamp(2.6rem,12.5vw,4.6rem)/.98 "Cormorant Garamond",Georgia,serif;font-variant-numeric:lining-nums;letter-spacing:-.02em;margin:0 0 1rem;animation:fadeUp .7s .08s both}
-h1 em{font-style:italic;font-weight:300;color:var(--plum)}
+h1{font:300 clamp(2.6rem,12.5vw,4.6rem)/.98 "Cormorant Garamond",Georgia,serif;font-variant-numeric:lining-nums;letter-spacing:-.02em;margin:0 0 1rem}
+h1 .w{display:inline-block;white-space:nowrap}
+h1 .ch{display:inline-block;animation:letterIn .8s cubic-bezier(.2,.9,.3,1.3) calc(.1s + var(--j)*38ms) both}
+@keyframes letterIn{from{opacity:0;transform:translateY(.45em) rotate(8deg)}}
+h1 em{display:inline-block;font-style:italic;font-weight:400;padding:0 .1em 0 .02em;cursor:pointer;color:var(--plum);
+  background:linear-gradient(100deg,var(--plum) 20%,#c0607f 40%,#e2a47f 50%,#c0607f 60%,var(--plum) 80%);background-size:260% 100%;
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  animation:pop30 1s cubic-bezier(.2,1.6,.4,1) .45s both,shimmer 5s linear 1.5s infinite}
+@keyframes pop30{from{opacity:0;transform:scale(.3) rotate(-14deg)}}
+@keyframes shimmer{from{background-position:130% 0}to{background-position:-130% 0}}
+.status{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem 1rem;margin:0 0 1.2rem;font-size:.86rem;color:var(--muted);animation:fadeUp .7s .24s both}
+.pips{display:flex;gap:4px}
+.pips i{width:.62rem;height:.62rem;border-radius:50%;background:rgba(58,39,51,.12);transition:background-color .5s,transform .5s cubic-bezier(.3,1.8,.5,1)}
+.pips i.on{background:var(--c);transform:scale(1.2);box-shadow:inset 0 0 0 1px rgba(58,39,51,.15)}
+.pips i.now{box-shadow:0 0 0 2px var(--plum)}
+.count{font-variant-numeric:tabular-nums}
 .sub{color:var(--muted);margin:0 0 1.8rem;max-width:26rem;animation:fadeUp .7s .16s both}
 .banner{background:#f0e0b2;padding:.45rem .9rem;border-radius:999px;margin:0 0 1rem;font-weight:500;display:inline-block}
 .hint{min-height:1.6rem;color:var(--plum);margin:0 0 .8rem;font-weight:400;animation:fadeUp .35s both}
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;list-style:none;margin:0;padding:0}
 @media(min-width:620px){.grid{grid-template-columns:repeat(8,1fr);gap:1rem}}
-.slot{position:relative;perspective:700px;animation:fadeUp .6s calc(.25s + var(--i)*45ms) both}
+.slot{position:relative;perspective:700px;animation:dropIn .7s cubic-bezier(.2,1.3,.4,1) calc(.35s + var(--i)*55ms) both}
+@keyframes dropIn{from{opacity:0;transform:translateY(-22px) scale(.85) rotate(-4deg)}}
+.tilt{position:relative;transform-style:preserve-3d;transition:transform .25s ease-out;transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg))}
+.slot.is-today::after{content:"\2726";position:absolute;z-index:3;top:-1.05rem;left:50%;color:var(--plum);font-size:1rem;animation:twinkle 1.8s ease-in-out infinite}
+@keyframes twinkle{0%,100%{transform:translateX(-50%) scale(.9);opacity:1}50%{transform:translate(-50%,-5px) scale(1.35) rotate(25deg);opacity:.55}}
 .glow{position:absolute;inset:0;border-radius:999px 999px .5rem .5rem;opacity:0;transition:opacity .3s;
   background:radial-gradient(circle at 50% 62%,#fff6df,#ecd2ba 60%,#d9a98f)}
 .slot.swinging .glow{opacity:1}
@@ -47,6 +77,11 @@ h1 em{font-style:italic;font-weight:300;color:var(--plum)}
   background-blend-mode:multiply,normal,normal;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 16px 20px -16px rgba(58,39,51,.55)}
 .c0{background-color:#d3e4c3}.c1{background-color:#f0e0b2}.c2{background-color:#cfc2de}.c3{background-color:#d9e7ec}.c4{background-color:#e5bfa8}.c5{background-color:#c2c99f}
+.door::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.6) 50%,transparent 62%);background-size:260% 100%;background-position:150% 0;
+  animation:sheen 8s calc(1.2s + var(--i)*.3s) infinite}
+@keyframes sheen{0%,72%{background-position:150% 0}100%{background-position:-60% 0}}
+.door.locked::before{display:none}
 .door::after{content:"";position:absolute;right:.7rem;top:58%;width:.38rem;height:.38rem;border-radius:50%;background:var(--plum);opacity:.5}
 @media(hover:hover){.door:hover{transform:translateY(-3px)}}
 .door:active{transform:scale(.95);transition-duration:.12s}
@@ -54,6 +89,10 @@ h1 em{font-style:italic;font-weight:300;color:var(--plum)}
 .door.locked{filter:saturate(.85);opacity:.86;cursor:default}
 .door.locked::after,.door.open::after{display:none}
 .door.open{background-color:var(--plum);color:#f1e6dc}
+.door.photo.open{background-color:var(--plum);background-size:cover;background-position:50% 50%;background-blend-mode:normal;color:#fff;
+  align-items:end;padding-bottom:.45rem;text-shadow:0 1px 6px rgba(0,0,0,.65);overflow:hidden;
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.55),0 16px 20px -16px rgba(58,39,51,.55)}
+.door.photo.open::before{display:block;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.45))}
 .door.today{animation:pulse 2.4s infinite}
 .door.swing{transform:rotateY(-78deg)}
 .door.shake{animation:shake .4s}
@@ -78,6 +117,7 @@ h1 em{font-style:italic;font-weight:300;color:var(--plum)}
 .sheet h2{font:400 2.2rem/1.1 "Cormorant Garamond",Georgia,serif;letter-spacing:-.01em;margin:0 0 .6rem}
 .sheet p{margin:0 0 1rem;white-space:pre-line}
 .sheet img{display:block;width:100%;max-height:50vh;max-height:50dvh;object-fit:cover;border-radius:.9rem;margin:0 0 1rem}
+.sheet img.pic{max-height:46vh;max-height:46dvh;box-shadow:0 10px 26px -16px rgba(58,39,51,.6)}
 .sheet video{display:block;width:auto;height:auto;max-width:100%;max-height:62vh;max-height:62dvh;border-radius:1.1rem;background:var(--ink);margin:0 auto 1rem}
 .sheet iframe{display:block;width:100%;aspect-ratio:16/9;border:0;border-radius:1.1rem;margin:0 0 1rem}
 .cap{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:0 0 .45rem}
@@ -92,15 +132,23 @@ h1 em{font-style:italic;font-weight:300;color:var(--plum)}
 .vn-wave i.on{background:#c4a0b0}
 .vn.playing .vn-wave i.on{background:var(--plum)}
 .vn-time{flex:none;font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums;min-width:2.4rem;text-align:right}
+.sheet>:not(.grab){animation:fadeUp .55s cubic-bezier(.2,.9,.3,1) both}
+.sheet>:nth-child(2){animation-delay:.12s}.sheet>:nth-child(3){animation-delay:.2s}.sheet>:nth-child(4){animation-delay:.28s}
+.sheet>:nth-child(5){animation-delay:.36s}.sheet>:nth-child(6){animation-delay:.44s}.sheet>:nth-child(n+7){animation-delay:.52s}
+.vn.playing .vn-play{animation:ring 1.6s infinite}
+@keyframes ring{0%{box-shadow:0 0 0 0 rgba(109,46,71,.45)}100%{box-shadow:0 0 0 .8rem rgba(109,46,71,0)}}
+.vn.playing .vn-wave i.head{animation:bob .35s ease-in-out infinite alternate}
+@keyframes bob{to{transform:scaleY(1.5)}}
 .close{all:unset;box-sizing:border-box;display:block;width:100%;text-align:center;cursor:pointer;margin-top:1.2rem;padding:.8rem;border-radius:999px;background:var(--ink);color:var(--paper);font-weight:500}
 .close:focus-visible{outline:3px solid var(--d1);outline-offset:2px}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.balloon{display:none}}
 </style>
 </head>
 <body>
 <main id="root"></main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <script>
 /* ---------- EDIT THIS SECTION ---------- */
 const YEAR = 2026;
@@ -110,7 +158,9 @@ const YEAR = 2026;
    "video"   -> src: "notes/day2.mp4"     (optional poster: "notes/day2.jpg")
    "youtube" -> id:  "dQw4w9WgXcQ"        (unlisted video ID)
    "embed"   -> src: "https://w.soundcloud.com/player/?url=..."
+   "image"   -> src: "Media/day1.jpg"     photo inside the media list (put it before an audio item to sit above it)
    Optional image: "images/day1.jpg" (+ alt) shows above the message.
+   Optional doorImage: "Media/day1.jpg" shows that photo on the door once it has been opened.
    Leave media out for a text-only door. Days without an entry show a placeholder.
    Example:  3: { title: "Em Perrin", text: "Happy 30th!",
                   media: [ { type: "audio", src: "notes/day3.m4a", label: "Voice note" },
@@ -131,8 +181,11 @@ const DAYS = {
   10: { title: "Stinky 1 and Stinky 2", text: "A message from Stinky 1 and Stinky 2 is on its way." },
   11: { title: "Pappa Johns", text: "A message from Pappa Johns is on its way." },
   12: { title: "Ben and Sarah", text: "A message from Ben and Sarah is on its way." },
-  13: { title: "Day 13", text: "Nothing here yet." },
-  14: { title: "Day 14", text: "Nothing here yet." },
+  13: { title: "Connor", text: "Turn the sound up and press play.", doorImage: "Media/connor.jpg",
+        media: [ { type: "image", src: "Media/connor.jpg", alt: "Connor and friends on a night out" },
+                 { type: "audio", src: "Media/connor.m4a", label: "Voice note from Connor" } ] },
+  14: { title: "Sarah Clifford", text: "Turn the sound up and press play.",
+        media: { type: "audio", src: "Media/sarah.m4a", label: "Voice note from Sarah" } },
   15: { title: "Day 15", text: "Nothing here yet." },
   16:{ title: "Day 16", text: "Happy birthday!" }
 };
@@ -147,6 +200,58 @@ const now = new Date();
 const today = !preview && now.getFullYear() === YEAR && now.getMonth() === 10 && now.getDate() <= TOTAL ? now.getDate() : 0;
 const lockedMsg = d => "Door " + d + " opens on " + d + " November.";
 const COLORS = ["#cfc2de", "#f0e0b2", "#d3e4c3", "#e5bfa8", "#6d2e47", "#c2c99f"];
+const DOOR_COLORS = ["#d3e4c3", "#f0e0b2", "#cfc2de", "#d9e7ec", "#e5bfa8", "#c2c99f"];
+const hasConfetti = () => typeof window.confetti === "function";
+function burstAt(x, y, big) {
+  if (!hasConfetti()) return false;
+  const o = { origin: { x: x / innerWidth, y: y / innerHeight }, colors: COLORS, disableForReducedMotion: true, zIndex: 40 };
+  confetti(Object.assign({}, o, { particleCount: big ? 120 : 70, spread: big ? 100 : 75, startVelocity: big ? 38 : 28, scalar: .9, ticks: 170 }));
+  confetti(Object.assign({}, o, { particleCount: 14, spread: 360, startVelocity: 16, shapes: ["star"], scalar: 1.2, ticks: 120 }));
+  return true;
+}
+function finale() { /* the big one for day 16 */
+  if (!hasConfetti()) return;
+  const end = Date.now() + 3000;
+  (function f() {
+    [[60, 0], [120, 1]].forEach(([angle, x]) => confetti({ particleCount: 5, angle, spread: 65, startVelocity: 55, origin: { x, y: .75 }, colors: COLORS, disableForReducedMotion: true, zIndex: 40 }));
+    if (Date.now() < end) requestAnimationFrame(f);
+  })();
+}
+function nextDoor() {
+  if (preview) return null;
+  const n = new Date();
+  for (let d = 1; d <= TOTAL; d++) { const t = new Date(YEAR, 10, d); if (n < t) return { d, ms: t - n }; }
+  return null;
+}
+function untilText(ms) {
+  const s = Math.floor(ms / 1000), d = Math.floor(s / 86400), hr = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60);
+  return d > 0 ? d + "d " + hr + "h " + m + "m" : hr + "h " + String(m).padStart(2, "0") + "m " + String(s % 60).padStart(2, "0") + "s";
+}
+const BALLOONS = Array.from({ length: 9 }, (_, i) => ({
+  l: (i * 11 + Math.random() * 8) + "%", s: (.7 + Math.random() * .6).toFixed(2),
+  d: (24 + Math.random() * 18).toFixed(1) + "s", dl: (-Math.random() * 40).toFixed(1) + "s", c: DOOR_COLORS[i % DOOR_COLORS.length]
+}));
+function Sky() {
+  return ReactDOM.createPortal(h("div", { className: "sky", "aria-hidden": "true" }, h("b"), h("b"), h("b"),
+    BALLOONS.map((b, i) => h("i", { key: i, className: "balloon", style: { "--l": b.l, "--s": b.s, "--d": b.d, "--dl": b.dl, "--c": b.c } }))), document.body);
+}
+function Letters({ text, from }) { /* one span per letter so the title can cascade in */
+  let j = from;
+  return text.split(" ").map((word, wi, all) => h(React.Fragment, { key: wi },
+    h("span", { className: "w" }, [...word].map((c, ci) => h("span", { key: ci, className: "ch", style: { "--j": j++ } }, c))),
+    wi < all.length - 1 ? " " : null));
+}
+function Status({ opened }) {
+  const [, tick] = useState(0);
+  useEffect(() => { const t = setInterval(() => tick(x => x + 1), 1000); return () => clearInterval(t); }, []);
+  const nx = nextDoor();
+  return h("div", { className: "status" },
+    h("span", { className: "pips", "aria-hidden": "true" }, Array.from({ length: TOTAL }, (_, i) =>
+      h("i", { key: i, className: (opened.includes(i + 1) ? "on" : "") + (today === i + 1 ? " now" : ""), style: { "--c": DOOR_COLORS[i % 6] } }))),
+    h("span", null, opened.length + " of " + TOTAL + " opened"),
+    nx ? h("span", { className: "count" }, "Door " + nx.d + " opens in " + untilText(nx.ms))
+       : !preview && opened.length === TOTAL ? h("span", null, "Every door opened. Happy 30th!") : null);
+}
 
 const fmt = t => !isFinite(t) ? "0:00" : Math.floor(t / 60) + ":" + String(Math.floor(t % 60)).padStart(2, "0");
 const BARS = 36;
@@ -193,13 +298,14 @@ function VoiceNote({ src, label }) {
           h("path", { d: playing ? "M6 4h4v16H6zM14 4h4v16h-4z" : "M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5z" }))),
       h("div", { className: "vn-wave", ref: wave, role: "slider", "aria-label": "Seek", "aria-valuemin": 0, "aria-valuemax": Math.round(dur || 0), "aria-valuenow": Math.round(t),
           onPointerDown: ev => { ev.currentTarget.setPointerCapture(ev.pointerId); seek(ev); }, onPointerMove: ev => ev.buttons && seek(ev) },
-        peaks.map((p, i) => h("i", { key: i, className: (i + .5) / BARS <= pct ? "on" : "", style: { height: Math.round(p * 100) + "%" } }))),
+        peaks.map((p, i) => h("i", { key: i, className: ((i + .5) / BARS <= pct ? "on" : "") + (i === Math.min(BARS - 1, Math.floor(pct * BARS)) ? " head" : ""), style: { height: Math.round(p * 100) + "%" } }))),
       h("span", { className: "vn-time" }, fmt(playing || t ? t : dur))));
 }
 
 function Media({ m }) {
   if (!m) return null;
   if (Array.isArray(m)) return m.map((x, i) => h(Media, { key: i, m: x }));
+  if (m.type === "image") return h("img", { className: "pic", src: m.src, alt: m.alt || "", loading: "lazy" });
   if (m.type === "audio") return h(VoiceNote, { src: m.src, label: m.label });
   if (m.type === "video") return h("video", { controls: true, playsInline: true, preload: "metadata", poster: m.poster, src: m.src + (m.poster ? "" : "#t=0.1") });
   if (m.type === "youtube" || m.type === "embed")
@@ -224,6 +330,7 @@ function Sheet({ day, onClose }) {
   const close = useCallback(() => { setOut(true); setTimeout(onClose, 260); }, [onClose]);
   useEffect(() => {
     if (btn.current) btn.current.focus({ preventScroll: true });
+    if (day === TOTAL) setTimeout(finale, 250);
     const k = ev => ev.key === "Escape" && close();
     const solo = ev => document.querySelectorAll("audio,video").forEach(m => m !== ev.target && m.pause()); /* one thing plays at a time */
     addEventListener("keydown", k);
@@ -246,15 +353,25 @@ function Sheet({ day, onClose }) {
 }
 
 function Door({ d, opened, swing, shake, onTap }) {
+  const photo = DAYS[d] && DAYS[d].doorImage;
   const lock = !unlocked(d);
   const cls = ["door", "c" + ((d - 1) % 6)];
   if (lock) cls.push("locked"); if (opened) cls.push("open");
+  if (photo && opened) cls.push("photo");
   if (d === today && !opened) cls.push("today");
   if (swing) cls.push("swing"); if (shake) cls.push("shake");
-  return h("li", { className: "slot" + (swing ? " swinging" : ""), style: { "--i": d } },
-    h("div", { className: "glow" }),
-    h("button", { className: cls.join(" "), onClick: ev => onTap(d, ev.currentTarget),
-      "aria-label": "Door " + d + (lock ? ", locked until November " + d : opened ? ", opened" : "") }, d));
+  const [tilt, setTilt] = useState(null);
+  const lean = ev => { /* mouse only: doors lean toward the pointer */
+    if (ev.pointerType !== "mouse" || swing) return;
+    const r = ev.currentTarget.getBoundingClientRect();
+    setTilt({ "--ry": ((ev.clientX - r.left) / r.width - .5) * 22 + "deg", "--rx": -((ev.clientY - r.top) / r.height - .5) * 18 + "deg" });
+  };
+  return h("li", { className: "slot" + (swing ? " swinging" : "") + (d === today && !opened ? " is-today" : ""), style: { "--i": d },
+      onPointerMove: lean, onPointerLeave: () => setTilt(null) },
+    h("div", { className: "tilt", style: tilt || undefined },
+      h("div", { className: "glow" }),
+      h("button", { className: cls.join(" "), style: photo && opened ? { backgroundImage: "url(" + photo + ")" } : undefined, onClick: ev => onTap(d, ev.currentTarget),
+        "aria-label": "Door " + d + (lock ? ", locked until November " + d : opened ? ", opened" : "") }, d)));
 }
 
 function App() {
@@ -269,9 +386,9 @@ function App() {
     if (!unlocked(d)) { setHint(lockedMsg(d)); setShake(d); setTimeout(() => setShake(0), 400); return; }
     setHint("");
     if (opened.includes(d)) { setSheet(d); return; }
-    const r = el.getBoundingClientRect();
-    setBurst({ x: r.left + r.width / 2, y: r.top + r.height / 2, k: Date.now() });
-    setTimeout(() => setBurst(null), 1000);
+    const r = el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    if (navigator.vibrate) navigator.vibrate(18);
+    if (!burstAt(cx, cy, d === TOTAL)) { setBurst({ x: cx, y: cy, k: Date.now() }); setTimeout(() => setBurst(null), 1000); }
     setSwing(d); mark(d);
     setTimeout(() => { setSheet(d); setSwing(0); }, 650);
   };
@@ -279,10 +396,13 @@ function App() {
     const w = parseInt(new URLSearchParams(location.search).get("day"), 10);
     if (w >= 1 && w <= TOTAL) { if (unlocked(w)) { mark(w); setSheet(w); } else setHint(lockedMsg(w)); }
   }, []);
+  const cheer = ev => burstAt(ev.clientX, ev.clientY, true);
   return h(React.Fragment, null,
+    h(Sky),
     h("p", { className: "eyebrow" }, "1 – 16 November"),
-    h("h1", null, "Haz's ", h("em", null, "30th"), " Birthday Calendar"),
+    h("h1", null, h(Letters, { text: "Haz's", from: 0 }), " ", h("em", { onClick: cheer }, "30th"), " ", h(Letters, { text: "Birthday Calendar", from: 6 })),
     h("p", { className: "sub" }, "One door a day. Tap today's door to open it."),
+    h(Status, { opened }),
     preview && h("p", { className: "banner" }, "Preview mode: every door is unlocked."),
     h("p", { className: "hint", key: hint, role: "status" }, hint),
     h("ul", { className: "grid", style: { listStyle: "none", margin: 0, padding: 0 } },
