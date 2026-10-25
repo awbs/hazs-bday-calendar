@@ -4,21 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>QR codes</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
 <style>
-body{margin:0;padding:2rem 1rem;font:400 1rem/1.5 system-ui,sans-serif;background:#f4f0e9;color:#3b2f27}
-main{max-width:56rem;margin:0 auto}
-h1{font:500 2rem/1.1 Georgia,serif;margin:0 0 .5rem}
-label{display:block;margin:1rem 0 .3rem;font-weight:600}
-input{width:100%;padding:.6rem .8rem;border:1px solid #bdb2a3;border-radius:.5rem;font:inherit;background:#fff}
-button{margin-top:.7rem;padding:.55rem 1.2rem;border:0;border-radius:999px;background:#3b2f27;color:#f4f0e9;font:inherit;cursor:pointer}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(10rem,1fr));gap:1rem;margin-top:1.5rem}
-.card{background:#fff;border-radius:.8rem;padding:.8rem;text-align:center;break-inside:avoid}
-.qr{display:flex;justify-content:center}
-.qr img,.qr canvas{max-width:100%;height:auto}
-.card b{display:block;margin:.4rem 0 .1rem}
-.card a{font-size:.85rem;color:#3b2f27}
-@media print{body{background:#fff}.ui{display:none}.grid{grid-template-columns:repeat(4,1fr)}}
+:root{--bg:#e9e5dc;--ink:#3a2733;--plum:#6d2e47;--muted:#85796f;--paper:#f4f1ea;--blush:#e5bfa8}
+body{margin:0;padding:2rem 1rem;font:400 1rem/1.5 Jost,system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+main{max-width:60rem;margin:0 auto}
+h1{font:500 2.2rem/1.1 "Cormorant Garamond",Georgia,serif;margin:0 0 .5rem;color:var(--plum)}
+label{display:block;margin:1rem 0 .3rem;font-weight:500}
+input{width:100%;padding:.6rem .8rem;border:1px solid #bdb2a3;border-radius:.5rem;font:inherit;background:#fff;box-sizing:border-box}
+button{margin-top:.7rem;padding:.55rem 1.2rem;border:0;border-radius:999px;background:var(--plum);color:var(--paper);font:inherit;cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(12rem,1fr));gap:1.2rem;margin-top:1.5rem}
+.card{background:var(--paper);border-radius:1.2rem;padding:1.1rem 1rem 1rem;text-align:center;break-inside:avoid;box-shadow:0 2px 10px rgba(58,39,51,.12);border:1px solid rgba(109,46,71,.15)}
+.card .top{font:italic 400 .95rem "Cormorant Garamond",Georgia,serif;color:var(--muted);letter-spacing:.04em}
+.qr{display:flex;justify-content:center;margin:.5rem 0}
+.qr canvas,.qr svg{width:100%;height:auto;max-width:200px}
+.card b{display:block;font:500 1.5rem/1.1 "Cormorant Garamond",Georgia,serif;color:var(--plum)}
+.card .sub{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:.2rem}
+.card a{display:inline-block;margin-top:.4rem;font-size:.8rem;color:var(--plum);cursor:pointer}
+@media print{body{background:#fff}.ui{display:none}.card{box-shadow:none}.grid{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
 <body>
@@ -34,23 +38,35 @@ button{margin-top:.7rem;padding:.55rem 1.2rem;border:0;border-radius:999px;backg
 </main>
 <script>
 const grid = document.getElementById("grid");
+const badge = d => "data:image/svg+xml;utf8," + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">' +
+  '<circle cx="60" cy="60" r="56" fill="#f4f1ea"/><circle cx="60" cy="60" r="48" fill="#6d2e47"/>' +
+  '<text x="60" y="76" text-anchor="middle" font-family="Georgia,serif" font-size="46" fill="#f4f1ea">' + d + '</text></svg>');
 function build() {
   grid.textContent = "";
   const base = document.getElementById("base").value.trim().split("?")[0];
   for (let d = 1; d <= 16; d++) {
-    const url = base + "?day=" + d;
+    const qr = new QRCodeStyling({
+      width: 512, height: 512, type: "canvas", margin: 0,
+      data: base + "?day=" + d,
+      image: badge(d),
+      qrOptions: { errorCorrectionLevel: "H" },
+      imageOptions: { margin: 4, imageSize: .26, crossOrigin: "anonymous" },
+      dotsOptions: { type: "dots", color: "#6d2e47" },
+      cornersSquareOptions: { type: "extra-rounded", color: "#3a2733" },
+      cornersDotOptions: { type: "dot", color: "#6d2e47" },
+      backgroundOptions: { color: "#f4f1ea" }
+    });
     const card = document.createElement("div"); card.className = "card";
+    const top = document.createElement("div"); top.className = "top"; top.textContent = "Haz's 30th";
     const box = document.createElement("div"); box.className = "qr";
-    card.appendChild(box);
-    new QRCode(box, { text: url, width: 256, height: 256, correctLevel: QRCode.CorrectLevel.M });
-    const lab = document.createElement("b"); lab.textContent = "Day " + d;
+    qr.append(box);
+    const lab = document.createElement("b"); lab.textContent = "Door " + d;
+    const sub = document.createElement("div"); sub.className = "sub"; sub.textContent = "Scan to open";
     const dl = document.createElement("a"); dl.textContent = "Save PNG"; dl.className = "ui";
-    card.append(lab, dl);
+    dl.addEventListener("click", () => qr.download({ name: "door-" + d, extension: "png" }));
+    card.append(top, box, lab, sub, dl);
     grid.appendChild(card);
-    setTimeout(() => {
-      const c = box.querySelector("canvas");
-      if (c) { dl.href = c.toDataURL("image/png"); dl.download = "day-" + d + ".png"; }
-    }, 50);
   }
 }
 document.getElementById("go").addEventListener("click", build);

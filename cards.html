@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Printable cards</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
+<style>
+:root{--bg:#e9e5dc;--ink:#3a2733;--plum:#6d2e47;--muted:#85796f;--paper:#f4f1ea;--blush:#e5bfa8}
+@page{size:A4;margin:0}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.5 Jost,system-ui,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.ui{max-width:40rem;margin:0 auto;padding:1.5rem 1rem}
+.ui h1{font:500 2rem/1.1 "Cormorant Garamond",Georgia,serif;color:var(--plum);margin:0 0 .5rem}
+.ui label{display:block;margin:.8rem 0 .3rem;font-weight:500}
+.ui input{width:100%;padding:.6rem .8rem;border:1px solid #bdb2a3;border-radius:.5rem;font:inherit;background:#fff}
+.ui button{margin:.7rem .5rem 0 0;padding:.55rem 1.2rem;border:0;border-radius:999px;background:var(--plum);color:var(--paper);font:inherit;cursor:pointer}
+.ui li{margin:.2rem 0}
+/* A4 sheet: 3 x 3 cards of 63 x 88 mm */
+.sheet{width:210mm;height:297mm;margin:0 auto 1rem;background:#fff;position:relative;page-break-after:always;break-after:page;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+.sheet .label{position:absolute;top:4mm;left:0;right:0;text-align:center;font-size:8pt;color:#999}
+.grid{position:absolute;left:10.5mm;top:16.5mm;display:grid;grid-template-columns:repeat(3,63mm);grid-auto-rows:88mm}
+.card{width:63mm;height:88mm;position:relative;overflow:hidden;outline:.2mm solid #ddd;outline-offset:-.1mm}
+.front{background:var(--blush)}
+.front img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 20%}
+.front .shade{position:absolute;left:0;right:0;bottom:0;height:18mm;background:linear-gradient(to top,rgba(58,39,51,.78),rgba(58,39,51,0))}
+.front .name{position:absolute;left:5mm;right:5mm;bottom:5mm;color:#fff;font:500 19pt/1.05 "Cormorant Garamond",Georgia,serif}
+.front .name small{display:block;font:400 7pt Jost,sans-serif;letter-spacing:.2em;text-transform:uppercase;opacity:.9;text-align:center}
+.front.noimg{background:var(--blush)}
+.front.noimg .name{color:var(--plum);bottom:auto;top:50%;transform:translateY(-50%);text-align:center;left:4mm;right:4mm}
+.front.noimg .shade{display:none}
+.back{background:var(--paper);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:5mm}
+.back .top{font:italic 400 11pt "Cormorant Garamond",Georgia,serif;color:var(--muted);letter-spacing:.04em}
+.back .qr{width:34mm;height:34mm;margin:4mm 0}
+.back .qr svg,.back .qr canvas{width:100%;height:100%}
+.back b{font:500 20pt/1.1 "Cormorant Garamond",Georgia,serif;color:var(--plum)}
+.back .sub{font-size:6.5pt;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-top:1mm}
+@media print{body{background:#fff}.ui{display:none}.sheet{margin:0;box-shadow:none}.sheet .label{display:none}}
+</style>
+</head>
+<body>
+<div class="ui">
+  <h1>Printable cards</h1>
+  <p>Photo on the front, QR code on the back. Print double-sided on A4, <b>flip on long edge</b>, scale 100% (not "fit to page"). Cut along the grey lines for 63 x 88 mm cards.</p>
+  <label for="base">Calendar address</label>
+  <input id="base" value="https://awbs.github.io/hazs-bday-calendar/">
+  <button id="go">Rebuild</button><button onclick="print()">Print</button>
+  <p id="missing"></p>
+</div>
+<div id="out"></div>
+<script>
+/* name + photo for each door. img: "" means no photo yet. Keep in step with DAYS in index.html. */
+const CARDS = [
+  { d: 1,  name: "Carina",                 img: "" },
+  { d: 2,  name: "Em Perrin",              img: "" },
+  { d: 3,  name: "Emily Harding",          img: "" },
+  { d: 4,  name: "Eva",                    img: "" },
+  { d: 5,  name: "Gavin Pillinger",        img: "" },
+  { d: 6,  name: "Hannah Pawsey",          img: "Media/hannah.jpeg" },
+  { d: 7,  name: "Jack Goodwin",           img: "" },
+  { d: 8,  name: "Sophie Thompson",        img: "" },
+  { d: 9,  name: "Manda, Grumpy and Bear", img: "Media/manda_graham.jpeg" },
+  { d: 10, name: "Door 10",                img: "" },
+  { d: 11, name: "Pappa Johns",            img: "" },
+  { d: 12, name: "Ben and Sarah",          img: "" },
+  { d: 13, name: "Connor",                 img: "Media/connor.jpg" },
+  { d: 14, name: "Sarah Clifford",         img: "" },
+  { d: 15, name: "Brooke",                 img: "Media/brooke.jpeg" },
+  { d: 16, name: "Stinky 1 and Stinky 2",  img: "" }
+];
+const badge = d => "data:image/svg+xml;utf8," + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">' +
+  '<circle cx="60" cy="60" r="56" fill="#f4f1ea"/><circle cx="60" cy="60" r="48" fill="#6d2e47"/>' +
+  '<text x="60" y="76" text-anchor="middle" font-family="Georgia,serif" font-size="46" fill="#f4f1ea">' + d + '</text></svg>');
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text) e.textContent = text; return e; };
+
+function frontCard(c) {
+  const f = el("div", "card front" + (c.img ? "" : " noimg"));
+  if (c.img) { const i = el("img"); i.src = c.img; i.alt = c.name; f.appendChild(i); }
+  f.appendChild(el("div", "shade"));
+  const n = el("div", "name"); n.appendChild(el("small", "", "Haz's 30th")); f.appendChild(n);
+  return f;
+}
+function backCard(c, base) {
+  const b = el("div", "card back");
+  b.appendChild(el("div", "top", "Haz's 30th"));
+  const box = el("div", "qr");
+  new QRCodeStyling({
+    width: 600, height: 600, type: "svg", margin: 0, data: base + "?day=" + c.d, image: badge(c.d),
+    qrOptions: { errorCorrectionLevel: "H" }, imageOptions: { margin: 4, imageSize: .26 },
+    dotsOptions: { type: "dots", color: "#6d2e47" },
+    cornersSquareOptions: { type: "extra-rounded", color: "#3a2733" },
+    cornersDotOptions: { type: "dot", color: "#6d2e47" },
+    backgroundOptions: { color: "#f4f1ea" }
+  }).append(box);
+  const svg = box.querySelector("svg"); /* fixed 600px size would crop; let it scale to the box */
+  if (svg) { svg.setAttribute("viewBox", "0 0 600 600"); svg.removeAttribute("width"); svg.removeAttribute("height"); }
+  b.appendChild(box);
+  b.appendChild(el("b", "", "Door " + c.d));
+  b.appendChild(el("div", "sub", "Scan to open"));
+  return b;
+}
+function sheet(label, cards) {
+  const s = el("div", "sheet"); s.appendChild(el("div", "label", label));
+  const g = el("div", "grid"); cards.forEach(c => g.appendChild(c)); s.appendChild(g); return s;
+}
+function build() {
+  const out = document.getElementById("out"); out.textContent = "";
+  const base = document.getElementById("base").value.trim().split("?")[0];
+  for (let i = 0; i < CARDS.length; i += 9) {
+    const page = CARDS.slice(i, i + 9), n = i / 9 + 1;
+    out.appendChild(sheet("Sheet " + n + " front", page.map(frontCard)));
+    /* mirror each row so backs line up when flipped on the long edge */
+    const mirrored = [];
+    for (let r = 0; r < page.length; r += 3) mirrored.push(...page.slice(r, r + 3).reverse());
+    out.appendChild(sheet("Sheet " + n + " back", mirrored.map(c => backCard(c, base))));
+  }
+  const miss = CARDS.filter(c => !c.img).map(c => c.name);
+  document.getElementById("missing").textContent = "No photo yet: " + miss.join(", ") + ".";
+}
+document.getElementById("go").addEventListener("click", build);
+build();
+</script>
+</body>
+</html>
