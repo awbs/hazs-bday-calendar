@@ -30,6 +30,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.5 Jost,syste
 .front.noimg{background:var(--blush)}
 .front.noimg .name{color:var(--plum);bottom:auto;top:50%;transform:translateY(-50%);text-align:center;left:4mm;right:4mm}
 .front.noimg .shade{display:none}
+.card.blank{outline:none}
 .back{background:var(--paper);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:5mm}
 .back .top{font:italic 400 11pt "Cormorant Garamond",Georgia,serif;color:var(--muted);letter-spacing:.04em}
 .back .qr{width:34mm;height:34mm;margin:4mm 0}
@@ -52,22 +53,22 @@ body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.5 Jost,syste
 <script>
 /* name + photo for each door. img: "" means no photo yet. Keep in step with DAYS in index.html. */
 const CARDS = [
-  { d: 1,  name: "Carina",                 img: "" },
-  { d: 2,  name: "Em Perrin",              img: "" },
-  { d: 3,  name: "Emily Harding",          img: "" },
-  { d: 4,  name: "Eva",                    img: "" },
-  { d: 5,  name: "Gavin Pillinger",        img: "" },
-  { d: 6,  name: "Hannah Pawsey",          img: "Media/hannah.jpeg" },
-  { d: 7,  name: "Jack Goodwin",           img: "" },
-  { d: 8,  name: "Sophie Thompson",        img: "" },
-  { d: 9,  name: "Manda, Grumpy and Bear", img: "Media/manda_graham.jpeg" },
-  { d: 10, name: "Door 10",                img: "" },
-  { d: 11, name: "Pappa Johns",            img: "" },
-  { d: 12, name: "Ben and Sarah",          img: "" },
-  { d: 13, name: "Connor",                 img: "Media/connor.jpg" },
-  { d: 14, name: "Sarah Clifford",         img: "" },
-  { d: 15, name: "Brooke",                 img: "Media/brooke.jpeg" },
-  { d: 16, name: "Stinky 1 and Stinky 2",  img: "" }
+  { d: 1, name: "Connor",                 img: "Media/connor_blur.jpg" },
+  { d: 2, name: "Sarah Clifford",         img: "Media/sarah.jpeg" },
+  { d: 3, name: "Sophie Thompson",        img: "" },
+  { d: 4, name: "Manda, Grumpy and Bear", img: "Media/manda_graham_blur.jpeg" },
+  { d: 5, name: "Em Perrin",              img: "" },
+  { d: 6, name: "Eva",                    img: "" },
+  { d: 7, name: "Peta",                   img: "Media/peta_blur.jpg" },
+  { d: 8, name: "Gavin Pillinger",        img: "Media/gavin_blur.jpeg" },
+  { d: 9, name: "Hannah Pawsey",          img: "Media/hannah_blur.jpeg" },
+  { d: 10, name: "Jack Goodwin",           img: "" },
+  { d: 11, name: "Ben and Sarah",          img: "Media/ben_blur.jpeg" },
+  { d: 12, name: "Carina",                 img: "" },
+  { d: 13, name: "Brooke",                 img: "Media/brooke_blur.jpeg" },
+  { d: 14, name: "Pappa Johns",            img: "" },
+  { d: 15, name: "Emily Harding",          img: "" },
+  { d: 16, name: "Stinky 1 and Stinky 2",  img: "Media/Stinky1.jpeg" }
 ];
 const badge = d => "data:image/svg+xml;utf8," + encodeURIComponent(
   '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">' +
@@ -113,8 +114,12 @@ function build() {
     out.appendChild(sheet("Sheet " + n + " front", page.map(frontCard)));
     /* mirror each row so backs line up when flipped on the long edge */
     const mirrored = [];
-    for (let r = 0; r < page.length; r += 3) mirrored.push(...page.slice(r, r + 3).reverse());
-    out.appendChild(sheet("Sheet " + n + " back", mirrored.map(c => backCard(c, base))));
+    for (let r = 0; r < page.length; r += 3) {
+      const row = page.slice(r, r + 3);
+      while (row.length < 3) row.push(null); /* pad short rows so a lone card's back lands behind it */
+      mirrored.push(...row.reverse());
+    }
+    out.appendChild(sheet("Sheet " + n + " back", mirrored.map(c => c ? backCard(c, base) : el("div", "card blank"))));
   }
   const miss = CARDS.filter(c => !c.img).map(c => c.name);
   document.getElementById("missing").textContent = "No photo yet: " + miss.join(", ") + ".";
