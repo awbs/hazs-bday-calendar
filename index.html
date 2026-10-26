@@ -161,6 +161,7 @@ const YEAR = 2026;
    "image"   -> src: "Media/day1.jpg"     photo inside the media list (put it before an audio item to sit above it)
    Optional image: "images/day1.jpg" (+ alt) shows above the message.
    Optional doorImage: "Media/day1.jpg" shows that photo on the door once it has been opened.
+   Optional focus: "50% 20%" on the day (door photo) or on an image item (message photo) moves the crop; lower % shows higher up.
    Leave media out for a text-only door. Days without an entry show a placeholder.
    Example:  3: { title: "Em Perrin", text: "Happy 30th!",
                   media: [ { type: "audio", src: "notes/day3.m4a", label: "Voice note" },
@@ -172,8 +173,8 @@ const DAYS = {
   1: { title: "Connor", text: "Turn the sound up and press play.", doorImage: "Media/connor_blur.jpg",
         media: [ { type: "image", src: "Media/connor_blur.jpg", alt: "Connor and friends on a night out" },
                  { type: "audio", src: "Media/connor.m4a", label: "Voice note from Connor" } ] },
-  2: { title: "Sarah Clifford", text: "Turn the sound up and press play.", doorImage: "Media/sarah.jpeg",
-        media: [ { type: "image", src: "Media/sarah.jpeg", alt: "Haz at pole class" },
+  2: { title: "Sarah Clifford", text: "Turn the sound up and press play.", doorImage: "Media/sarah.jpeg", focus: "50% 22%",
+        media: [ { type: "image", src: "Media/sarah.jpeg", alt: "Haz at pole class", focus: "50% 22%" },
                  { type: "audio", src: "Media/sarah.m4a", label: "Voice note from Sarah" } ] },
   3: { title: "Sophie Thompson", text: "A message from Sophie Thompson is on its way." },
   4: { title: "Manda, Grumpy and Bear", text: "Turn the sound up and press play.", doorImage: "Media/manda_graham_blur.jpeg",
@@ -315,7 +316,7 @@ function VoiceNote({ src, label }) {
 function Media({ m }) {
   if (!m) return null;
   if (Array.isArray(m)) return m.map((x, i) => h(Media, { key: i, m: x }));
-  if (m.type === "image") return h("img", { className: "pic", src: m.src, alt: m.alt || "", loading: "lazy" });
+  if (m.type === "image") return h("img", { className: "pic", src: m.src, alt: m.alt || "", loading: "lazy", style: m.focus ? { objectPosition: m.focus } : undefined });
   if (m.type === "audio") return h(VoiceNote, { src: m.src, label: m.label });
   if (m.type === "video") return h("video", { controls: true, playsInline: true, preload: "metadata", poster: m.poster, src: m.src + (m.poster ? "" : "#t=0.1") });
   if (m.type === "youtube" || m.type === "embed")
@@ -380,7 +381,7 @@ function Door({ d, opened, swing, shake, onTap }) {
       onPointerMove: lean, onPointerLeave: () => setTilt(null) },
     h("div", { className: "tilt", style: tilt || undefined },
       h("div", { className: "glow" }),
-      h("button", { className: cls.join(" "), style: photo && opened ? { backgroundImage: "url(" + photo + ")" } : undefined, onClick: ev => onTap(d, ev.currentTarget),
+      h("button", { className: cls.join(" "), style: photo && opened ? { backgroundImage: "url(" + photo + ")", backgroundPosition: DAYS[d].focus } : undefined, onClick: ev => onTap(d, ev.currentTarget),
         "aria-label": "Door " + d + (lock ? ", locked until November " + d : opened ? ", opened" : "") }, d)));
 }
 
