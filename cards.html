@@ -88,15 +88,13 @@ function backCard(c, base) {
   b.appendChild(el("div", "top", "Haz's 30th"));
   const box = el("div", "qr");
   new QRCodeStyling({
-    width: 600, height: 600, type: "svg", margin: 0, data: base + "?day=" + c.d, image: badge(c.d),
+    width: 600, height: 600, type: "canvas", margin: 0, data: base + "?day=" + c.d, image: badge(c.d),
     qrOptions: { errorCorrectionLevel: "H" }, imageOptions: { margin: 4, imageSize: .26 },
     dotsOptions: { type: "dots", color: "#6d2e47" },
     cornersSquareOptions: { type: "extra-rounded", color: "#3a2733" },
     cornersDotOptions: { type: "dot", color: "#6d2e47" },
     backgroundOptions: { color: "#f4f1ea" }
   }).append(box);
-  const svg = box.querySelector("svg"); /* fixed 600px size would crop; let it scale to the box */
-  if (svg) { svg.setAttribute("viewBox", "0 0 600 600"); svg.removeAttribute("width"); svg.removeAttribute("height"); }
   b.appendChild(box);
   b.appendChild(el("b", "", "Door " + c.d));
   b.appendChild(el("div", "sub", "Scan to open"));
