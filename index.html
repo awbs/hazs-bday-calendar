@@ -141,6 +141,15 @@ h1 em{display:inline-block;font-style:italic;font-weight:400;padding:0 .1em 0 .0
 @keyframes bob{to{transform:scaleY(1.5)}}
 .close{all:unset;box-sizing:border-box;display:block;width:100%;text-align:center;cursor:pointer;margin-top:1.2rem;padding:.8rem;border-radius:999px;background:var(--ink);color:var(--paper);font-weight:500}
 .close:focus-visible{outline:3px solid var(--d1);outline-offset:2px}
+/* tap empty space: a balloon, dachshund or party bit pops up and floats away */
+.floater{position:fixed;left:0;top:0;z-index:15;pointer-events:none;width:var(--w);margin:calc(var(--w)*-.5) 0 0 calc(var(--w)*-.5);
+  filter:drop-shadow(0 6px 8px rgba(58,39,51,.18));animation:floatAway var(--t) linear forwards}
+.floater>span{display:block;transform-origin:50% 8%;animation:sway 2.4s ease-in-out infinite alternate}
+.floater svg{display:block;width:100%;height:auto;overflow:visible}
+@keyframes floatAway{0%{transform:translate(0,0) scale(.2);opacity:0;animation-timing-function:cubic-bezier(.2,1.6,.4,1)}
+  9%{transform:translate(0,-.6rem) scale(1);opacity:1;animation-timing-function:cubic-bezier(.45,.05,.8,.6)}
+  85%{opacity:1}100%{transform:translate(var(--dx),var(--up)) scale(.9);opacity:0}}
+@keyframes sway{from{transform:rotate(calc(var(--r)*-1))}to{transform:rotate(var(--r))}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.balloon{display:none}}
 </style>
 </head>
@@ -153,52 +162,59 @@ h1 em{display:inline-block;font-style:italic;font-weight:400;padding:0 .1em 0 .0
 /* ---------- EDIT THIS SECTION ---------- */
 const YEAR = 2026;
 
-/* One entry per day (1-16). media is one item or a list of items:
-   "audio"   -> src: "notes/day1.m4a"     voice note (optional label: "from Mum")
-   "video"   -> src: "notes/day2.mp4"     (optional poster: "notes/day2.jpg")
+/* One entry per day (1-16). Each person's files live in their own folder, Media/<name>/.
+   media is one item or a list of items:
+   "audio"   -> src: "Media/name/day1.m4a"     voice note (optional label: "from Mum")
+   "video"   -> src: "Media/name/day2.mp4"     (optional poster: "Media/name/day2.jpg")
    "youtube" -> id:  "dQw4w9WgXcQ"        (unlisted video ID)
    "embed"   -> src: "https://w.soundcloud.com/player/?url=..."
-   "image"   -> src: "Media/day1.jpg"     photo inside the media list (put it before an audio item to sit above it)
+   "image"   -> src: "Media/name/day1.jpg"     photo inside the media list (put it before an audio item to sit above it)
    Optional image: "images/day1.jpg" (+ alt) shows above the message.
-   Optional doorImage: "Media/day1.jpg" shows that photo on the door once it has been opened.
+   Optional doorImage: "Media/name/day1.jpg" shows that photo on the door once it has been opened.
    Optional focus: "50% 20%" on the day (door photo) or on an image item (message photo) moves the crop; lower % shows higher up.
    Leave media out for a text-only door. Days without an entry show a placeholder.
    Example:  3: { title: "Em Perrin", text: "Happy 30th!",
-                  media: [ { type: "audio", src: "notes/day3.m4a", label: "Voice note" },
-                           { type: "video", src: "notes/day3.mp4", poster: "notes/day3.jpg" } ] },
-   (notes/demo.mp4, demo-poster.jpg and demo.wav are working samples to copy from.)
+                  media: [ { type: "audio", src: "Media/name/day3.m4a", label: "Voice note" },
+                           { type: "video", src: "Media/name/day3.mp4", poster: "Media/name/day3.jpg" } ] },
    iPhone tips: Voice Memos -> Share -> Save to Files gives an .m4a; camera clips
    play best as .mp4 (H.264), kept short. */
 const DAYS = {
-  1: { title: "Connor", text: "Turn the sound up and press play.", doorImage: "Media/connor.jpg",
-        media: [ { type: "image", src: "Media/connor.jpg", alt: "Connor and friends on a night out" },
-                 { type: "audio", src: "Media/connor.m4a", label: "Voice note from Connor" } ] },
-  2: { title: "Sarah Clifford", text: "Turn the sound up and press play.", doorImage: "Media/sarah.jpeg", focus: "50% 22%",
-        media: [ { type: "image", src: "Media/sarah.jpeg", alt: "Haz at pole class", focus: "50% 22%" },
-                 { type: "audio", src: "Media/sarah.m4a", label: "Voice note from Sarah" } ] },
+  1: { title: "Connor", text: "Turn the sound up and press play.", doorImage: "Media/connor/connor.jpg",
+        media: [ { type: "image", src: "Media/connor/connor.jpg", alt: "Connor and friends on a night out" },
+                 { type: "audio", src: "Media/connor/connor.m4a", label: "Voice note from Connor" } ] },
+  2: { title: "Sarah Clifford", text: "Turn the sound up and press play.", doorImage: "Media/sarah/sarah.jpeg", focus: "50% 22%",
+        media: [ { type: "image", src: "Media/sarah/sarah.jpeg", alt: "Haz at pole class", focus: "50% 22%" },
+                 { type: "audio", src: "Media/sarah/sarah.m4a", label: "Voice note from Sarah" } ] },
   3: { title: "Sophie Thompson", text: "A message from Sophie Thompson is on its way." },
-  4: { title: "Manda, Grumpy and Bear", text: "Turn the sound up and press play.", doorImage: "Media/manda_graham.jpeg",
-        media: { type: "video", src: "Media/manda_graham.mp4", poster: "Media/manda_graham.jpeg" } },
-  5: { title: "Em Perrin", text: "A message from Em Perrin is on its way." },
-  6: { title: "Eva", text: "A message from Eva is on its way." },
-  7: { title: "Peta", text: "Turn the sound up and press play.", doorImage: "Media/Peta.jpg",
-        media: { type: "video", src: "Media/Peta.mp4", poster: "Media/Peta.jpg" } },
-  8: { title: "Gavin Pillinger", text: "A message from Gavin Pillinger is on its way.", doorImage: "Media/gavin_web.jpeg",
-        media: { type: "image", src: "Media/gavin_web.jpeg", alt: "Haz at On the Beach" } },
-  9: { title: "Hannah Pawsey", text: "Dearest Haz,\n\nYour heart is pure gold and it’s been an absolute delight to get to know you better over these last few years and grow our friendship. Here’s to growing it even more💕\n\nHappy 30th Birthday, my beautiful friend!\n\nLots of love,\nHan 🪩🪩🪩", doorImage: "Media/hannah.jpeg",
-        media: { type: "image", src: "Media/hannah.jpeg", alt: "Hannah and Haz" } },
-  10: { title: "Jack Goodwin", text: "A message from Jack Goodwin is on its way." },
-  11: { title: "Ben and Sarah", text: "Turn the sound up and press play.", doorImage: "Media/ben_web.jpeg",
-        media: [ { type: "image", src: "Media/ben_web.jpeg", alt: "Haz in a 30 and Fabulous sash" },
-                 { type: "audio", src: "Media/ben.m4a", label: "Voice note from Ben" } ] },
+  4: { title: "Manda, Grumpy and Bear", text: "Turn the sound up and press play.", doorImage: "Media/manda/manda_graham.jpeg",
+        media: { type: "video", src: "Media/manda/manda_graham.mp4", poster: "Media/manda/manda_graham.jpeg" } },
+  5: { title: "Teddy", text: "Turn the sound up and press play.", doorImage: "Media/teddy/teddy_group.jpg",
+        media: [ { type: "image", src: "Media/teddy/teddy_group.jpg", alt: "Haz, her dad, Teddy and Adam above Monaco" },
+                 { type: "video", src: "Media/teddy/teddy.mp4", poster: "Media/teddy/teddy.jpg" } ] },
+  6: { title: "Eva", text: "Turn the sound up and press play.", doorImage: "Media/eva/eva_bench.jpg",
+        media: [ { type: "image", src: "Media/eva/eva_bench.jpg", alt: "Eva and Haz on a bench" },
+                 { type: "video", src: "Media/eva/eva.mp4", poster: "Media/eva/eva.jpg" } ] },
+  7: { title: "Peta", text: "Turn the sound up and press play.", doorImage: "Media/peta/Peta.jpg",
+        media: { type: "video", src: "Media/peta/Peta.mp4", poster: "Media/peta/Peta.jpg" } },
+  8: { title: "Gavin Pillinger", text: "Haz! Can’t believe it’s your birthday! 🕺💃 Huge welcome to the 30’s club. It’s honestly the best. You’ll have a great time. \n\nSo so glad you’re having the most incredible life in Brighton! Thanks for having me in your beautiful home 🫶 it was such a lovely weekend and it’s so nice Zoe, Em and Jael are down there with you both. It reminded me of our little bop in Brighton on the beach last July. Who knew you guys would actually end up living there a year later! \n\nThanks for being an awesome friend over the last 5 years. 5 years! Can you believe it! What a journey. Here’s to more amazing holidays, bops on the dance floor and coffee hang outs. See you in Brighton very soon! Love, Gav x", doorImage: "Media/gavin/gavin_web.jpeg",
+        media: { type: "image", src: "Media/gavin/gavin_web.jpeg", alt: "Haz at On the Beach" } },
+  9: { title: "Hannah Pawsey", text: "Dearest Haz,\n\nYour heart is pure gold and it’s been an absolute delight to get to know you better over these last few years and grow our friendship. Here’s to growing it even more💕\n\nHappy 30th Birthday, my beautiful friend!\n\nLots of love,\nHan 🪩🪩🪩", doorImage: "Media/hannah/hannah.jpeg",
+        media: { type: "image", src: "Media/hannah/hannah.jpeg", alt: "Hannah and Haz" } },
+  10: { title: "Jack and Em", text: "Turn the sound up and press play.", doorImage: "Media/em/em_group_web.jpg",
+        media: [ { type: "image", src: "Media/em/em_group_web.jpg", alt: "Haz and friends around the dinner table" },
+                 { type: "video", src: "Media/em/em_perrin.mp4", poster: "Media/em/em_perrin.jpg" } ] },
+  11: { title: "Ben and Sarah", text: "Turn the sound up and press play.", doorImage: "Media/ben/ben_web.jpeg",
+        media: [ { type: "image", src: "Media/ben/ben_web.jpeg", alt: "Haz in a 30 and Fabulous sash" },
+                 { type: "audio", src: "Media/ben/ben.m4a", label: "Voice note from Ben" } ] },
   12: { title: "Carina", text: "A message from Carina is on its way." },
-  13: { title: "Brooke", text: "Turn the sound up and press play.", doorImage: "Media/brooke.jpeg",
-        media: [ { type: "image", src: "Media/brooke.jpeg", alt: "Brooke" },
-                 { type: "audio", src: "Media/brooke.m4a", label: "Voice note from Brooke" } ] },
-  14: { title: "Pappa Johns", text: "A message from Pappa Johns is on its way." },
+  13: { title: "Brooke", text: "Turn the sound up and press play.", doorImage: "Media/brooke/brooke.jpeg",
+        media: [ { type: "image", src: "Media/brooke/brooke.jpeg", alt: "Brooke" },
+                 { type: "audio", src: "Media/brooke/brooke.m4a", label: "Voice note from Brooke" } ] },
+  14: { title: "Pappa Johns", text: "He teaches her to reach the sky,\nBoundless limits, as birds fly high.\nIn her flight, his pride takes root,\nfor his girl, once small and mute.\n\nFrom lifting kites to mending wings,\nin her flight, his heart too sings.\nA fathers joy, a boundless sky,\nin her successes, he too will fly’.\n\nHappy 30th Birthday. Your proud father. X", doorImage: "Media/paul/paul_web.jpg", focus: "50% 62%",
+        media: { type: "image", src: "Media/paul/paul_web.jpg", alt: "Haz and her dad in Florence", focus: "50% 58%" } },
   15: { title: "Emily Harding", text: "A message from Emily Harding is on its way." },
-  16: { title: "Stinky 1 and Stinky 2", text: "A message from Stinky 1 and Stinky 2 is on its way.", doorImage: "Media/Stinky1.jpeg",
-        media: { type: "image", src: "Media/Stinky1.jpeg", alt: "Haz with the dog by the seafront" } }
+  16: { title: "Stinky 1 and Stinky 2", text: "A message from Stinky 1 and Stinky 2 is on its way.", doorImage: "Media/stinky/Stinky1.jpeg",
+        media: { type: "image", src: "Media/stinky/Stinky1.jpeg", alt: "Haz with the dog by the seafront" } }
 };
 /* --------------------------------------- */
 
@@ -385,6 +401,79 @@ function Door({ d, opened, swing, shake, onTap }) {
         "aria-label": "Door " + d + (lock ? ", locked until November " + d : opened ? ", opened" : "") }, d)));
 }
 
+/* Pop-style birthday bits, all inked in --ink with flat fills */
+const INK = "#3a2733", BALLOON_COLORS = ["#e5bfa8", "#cfc2de", "#d3e4c3", "#f0e0b2", "#c0607f", "#9fb7c9", "#6d2e47"];
+const BALLOON_PATH = "M30 4C15 4 6 16 6 30c0 17 13 31 24 34 11-3 24-17 24-34C54 16 45 4 30 4z";
+const balloonBits = (c, x) =>
+  `<path d="${BALLOON_PATH}" transform="translate(${x} 0)" fill="${c}" stroke="${INK}" stroke-width="3"/>` +
+  `<ellipse cx="${x + 20}" cy="22" rx="5" ry="8" fill="#fff" opacity=".55" transform="rotate(25 ${x + 20} 22)"/>` +
+  `<path d="M${x + 26} 67h8l-4-5z" fill="${c}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>`;
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const FLOATERS = [
+  { n: 38, w: 3.4, svg: () => `<svg viewBox="0 0 60 112">${balloonBits(pick(BALLOON_COLORS), 0)}
+      <path d="M30 67c-6 10 6 18 0 28s5 12 2 14" fill="none" stroke="${INK}" stroke-width="1.8" opacity=".7"/></svg>` },
+  { n: 24, w: 6.6, svg: () => `<svg viewBox="0 0 136 140" stroke-linejoin="round" stroke-linecap="round">${balloonBits(pick(BALLOON_COLORS), 48)}
+      <path d="M78 67c-6 10 4 18-4 32" fill="none" stroke="${INK}" stroke-width="1.8" opacity=".7"/>
+      <path d="M24 108q-12-4-14-16" fill="none" stroke="${INK}" stroke-width="8"/><path d="M24 108q-12-4-14-16" fill="none" stroke="#c0814f" stroke-width="3.5"/>
+      ${[28, 42, 80, 93].map(x => `<rect x="${x}" y="116" width="10" height="16" rx="5" fill="#9a5f3d" stroke="${INK}" stroke-width="2.5"/>`).join("")}
+      <rect x="20" y="98" width="86" height="30" rx="15" fill="#c0814f" stroke="${INK}" stroke-width="3"/>
+      <path d="M38 122q22 5 46 0" fill="none" stroke="#e2a77a" stroke-width="3"/>
+      <ellipse cx="121" cy="103" rx="9" ry="7" fill="#c0814f" stroke="${INK}" stroke-width="3"/>
+      <ellipse cx="108" cy="95" rx="17" ry="15" fill="#c0814f" stroke="${INK}" stroke-width="3"/>
+      <circle cx="128" cy="101" r="3.5" fill="${INK}"/>
+      <path d="M118 107q3 3 6 0" fill="none" stroke="${INK}" stroke-width="1.6"/>
+      <circle cx="114" cy="102" r="3" fill="#e79a9a" opacity=".85"/>
+      <circle cx="111" cy="91" r="2.6" fill="${INK}"/><circle cx="112" cy="90" r=".9" fill="#fff"/>
+      <ellipse cx="100" cy="99" rx="6.5" ry="12" fill="#8a5232" stroke="${INK}" stroke-width="2.5" transform="rotate(18 100 99)"/>
+      <path d="M97 84l18-4-11-20z" fill="#f0e0b2" stroke="${INK}" stroke-width="2.5"/>
+      <path d="M100 76l10-2M102 69l5-1" stroke="#c0607f" stroke-width="2.5"/>
+      <circle cx="104" cy="59" r="4" fill="#c0607f" stroke="${INK}" stroke-width="2"/></svg>` },
+  { n: 8, w: 4.6, svg: () => `<svg viewBox="0 0 100 130"><text x="50" y="66" text-anchor="middle" font-family="Jost,sans-serif" font-weight="500" font-size="70"
+      fill="#6d2e47" stroke="${INK}" stroke-width="3" paint-order="stroke" stroke-linejoin="round">30</text>
+      <path d="M22 22q3-6 9-7M60 22q3-6 9-7" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".6"/>
+      <path d="M50 72c-6 10 6 18 0 28s5 12 2 22" fill="none" stroke="${INK}" stroke-width="1.8" opacity=".7"/></svg>` },
+  { n: 8, w: 3.8, svg: () => `<svg viewBox="0 0 80 92" stroke="${INK}" stroke-linejoin="round" stroke-linecap="round">
+      <ellipse cx="40" cy="84" rx="34" ry="6" fill="#f4f1ea" stroke-width="2.5"/>
+      <rect x="12" y="44" width="56" height="38" rx="6" fill="#e5bfa8" stroke-width="3"/>
+      <path d="M12 52q0-8 8-8h40q8 0 8 8v4q-4 6-8 0q-4 7-9 0q-5 7-10 0q-5 7-10 0q-5 7-9 0q-4 6-10 1z" fill="#f4f1ea" stroke-width="2.5"/>
+      <path d="M22 68l4-2M38 72l4 1M54 66l3 3" stroke="#6d2e47" stroke-width="2.5"/>
+      <rect x="36" y="24" width="8" height="20" rx="2" fill="#cfc2de" stroke-width="2.5"/>
+      <path d="M40 7c5 6 5 11 0 13c-5-2-5-7 0-13z" fill="#f0c25a" stroke-width="2"/></svg>` },
+  { n: 8, w: 3.4, svg: () => `<svg viewBox="0 0 80 80" stroke="${INK}" stroke-linejoin="round">
+      <rect x="10" y="30" width="60" height="44" rx="4" fill="#cfc2de" stroke-width="3"/>
+      <rect x="6" y="22" width="68" height="12" rx="3" fill="#cfc2de" stroke-width="3"/>
+      <rect x="35" y="22" width="10" height="52" fill="#6d2e47" stroke-width="2"/>
+      <path d="M40 22c-14-16-26-4-12 1zM40 22c14-16 26-4 12 1z" fill="#c0607f" stroke-width="2.5"/></svg>` },
+  { n: 7, w: 3, svg: () => `<svg viewBox="0 0 70 84" stroke="${INK}" stroke-linejoin="round">
+      <path d="M35 8L62 74Q35 84 8 74Z" fill="#d3e4c3" stroke-width="3"/>
+      <circle cx="30" cy="40" r="3.5" fill="#e5bfa8" stroke="none"/><circle cx="42" cy="56" r="3.5" fill="#c0607f" stroke="none"/><circle cx="26" cy="64" r="3.5" fill="#cfc2de" stroke="none"/>
+      <circle cx="35" cy="8" r="6" fill="#f0e0b2" stroke-width="2.5"/></svg>` },
+  { n: 7, w: 3.2, svg: () => `<svg viewBox="0 0 70 70" stroke="${INK}" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M35 5l8.8 18.6 20.2 2.5-14.9 14 3.9 20L35 50.2 17 60.1l3.9-20-14.9-14 20.2-2.5z" fill="#f0e0b2" stroke-width="3"/>
+      <circle cx="29" cy="33" r="2.2" fill="${INK}" stroke="none"/><circle cx="41" cy="33" r="2.2" fill="${INK}" stroke="none"/>
+      <path d="M31 39q4 4 8 0" fill="none" stroke-width="2"/>
+      <circle cx="25" cy="38" r="2.6" fill="#e79a9a" stroke="none"/><circle cx="45" cy="38" r="2.6" fill="#e79a9a" stroke="none"/></svg>` }
+];
+const FLOAT_TOTAL = FLOATERS.reduce((s, f) => s + f.n, 0);
+const calm = matchMedia("(prefers-reduced-motion: reduce)");
+let lastFloater = null;
+function spawnFloater(x, y) {
+  if (calm.matches || document.querySelectorAll(".floater").length > 30) return;
+  let f;
+  do { let r = Math.random() * FLOAT_TOTAL; f = FLOATERS.find(o => (r -= o.n) < 0); } while (f === lastFloater && f !== FLOATERS[0]);
+  lastFloater = f;
+  const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16, t = 3.6 + 3 * y / innerHeight;
+  const el = document.createElement("div");
+  el.className = "floater";
+  el.setAttribute("aria-hidden", "true");
+  el.style.cssText = `left:${x}px;top:${y}px;--w:${f.w}rem;--t:${t.toFixed(2)}s;--up:${-(y + f.w * rem * 2 + 40)}px;` +
+    `--dx:${Math.round(Math.random() * 120 - 60)}px;--r:${(4 + Math.random() * 6).toFixed(1)}deg`;
+  el.innerHTML = "<span>" + f.svg() + "</span>";
+  el.addEventListener("animationend", ev => ev.target === el && el.remove());
+  setTimeout(() => el.remove(), t * 1000 + 500);
+  document.body.appendChild(el);
+}
+
 function App() {
   const [opened, setOpened] = useState(() => { try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch (e) { return []; } });
   const [sheet, setSheet] = useState(null), [swing, setSwing] = useState(0), [shake, setShake] = useState(0);
@@ -407,12 +496,17 @@ function App() {
     const w = parseInt(new URLSearchParams(location.search).get("day"), 10);
     if (w >= 1 && w <= TOTAL) { if (unlocked(w)) { mark(w); setSheet(w); } else setHint(lockedMsg(w)); }
   }, []);
+  useEffect(() => { /* taps on empty space (not doors, buttons or an open message) send something floating up */
+    const f = ev => { if (!ev.target.closest("button,a,em,video,audio,iframe,.vn,.scrim")) spawnFloater(ev.clientX, ev.clientY); };
+    document.addEventListener("click", f);
+    return () => document.removeEventListener("click", f);
+  }, []);
   const cheer = ev => burstAt(ev.clientX, ev.clientY, true);
   return h(React.Fragment, null,
     h(Sky),
     h("p", { className: "eyebrow" }, "1 – 16 November"),
     h("h1", null, h(Letters, { text: "Haz's", from: 0 }), " ", h("em", { onClick: cheer }, "30th"), " ", h(Letters, { text: "Birthday Calendar", from: 6 })),
-    h("p", { className: "sub" }, "One door a day. Tap today's door to open it."),
+    h("p", { className: "sub" }, "One door a day. Tap today's door to open it, or tap anywhere else for a surprise."),
     h(Status, { opened }),
     preview && h("p", { className: "banner" }, "Preview mode: every door is unlocked."),
     h("p", { className: "hint", key: hint, role: "status" }, hint),
