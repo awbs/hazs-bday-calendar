@@ -51,23 +51,22 @@ body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.5 Jost,syste
 </div>
 <div id="out"></div>
 <script>
-/* name + photo for each door. img: "" means no photo yet. Keep in step with DAYS in index.html. */
+/* name + photo for each door. img: "" means no photo yet. Keep in step with DAYS in index.html.
+   Carina (12) and Emily Harding (15) are left out until their messages arrive. */
 const CARDS = [
-  { d: 1, name: "Connor",                 img: "Media/connor/connor_blur.jpg" },
+  { d: 1, name: "Connor and Jack",        img: "Media/connor/connor_blur.jpg" },
   { d: 2, name: "Sarah Clifford",         img: "Media/sarah/sarah.jpeg" },
-  { d: 3, name: "Sophie Thompson",        img: "Media/sophie/sophie_blur.jpg" },
+  { d: 3, name: "Hannah Pawsey",          img: "Media/hannah/hannah_blur.jpeg" },
   { d: 4, name: "Manda, Grumpy and Bear", img: "Media/manda/manda_graham_blur.jpeg" },
   { d: 5, name: "Teddy",                  img: "Media/teddy/teddy_group_blur.jpg" },
   { d: 6, name: "Gavin Pillinger",        img: "Media/gavin/gavin_blur.jpeg" },
   { d: 7, name: "Peta",                   img: "Media/peta/peta_blur.jpg" },
   { d: 8, name: "Eva",                    img: "Media/eva/eva_bench_blur.jpg" },
-  { d: 9, name: "Hannah Pawsey",          img: "Media/hannah/hannah_blur.jpeg" },
-  { d: 10, name: "Jack and Em",            img: "Media/em/em_group_blur.jpg" },
+  { d: 9, name: "Sophie Thompson",        img: "Media/sophie/sophie_blur.jpg" },
+  { d: 10, name: "Em Perrin",              img: "Media/em/em_group_blur.jpg" },
   { d: 11, name: "Ben and Sarah",          img: "Media/ben/ben_blur.jpeg" },
-  { d: 12, name: "Carina",                 img: "" },
   { d: 13, name: "Brooke",                 img: "Media/brooke/brooke_blur.jpeg" },
   { d: 14, name: "Pappa Johns",            img: "Media/paul/paul_blur.jpg" },
-  { d: 15, name: "Emily Harding",          img: "" },
   { d: 16, name: "Stinky 1 and Stinky 2",  img: "Media/stinky/Stinky1.jpeg" }
 ];
 const badge = d => "data:image/svg+xml;utf8," + encodeURIComponent(
@@ -120,7 +119,7 @@ function build() {
     out.appendChild(sheet("Sheet " + n + " back", mirrored.map(c => c ? backCard(c, base) : el("div", "card blank"))));
   }
   const miss = CARDS.filter(c => !c.img).map(c => c.name);
-  document.getElementById("missing").textContent = "No photo yet: " + miss.join(", ") + ".";
+  document.getElementById("missing").textContent = miss.length ? "No photo yet: " + miss.join(", ") + "." : "";
 }
 document.getElementById("go").addEventListener("click", build);
 build();

@@ -172,6 +172,7 @@ const YEAR = 2026;
    Optional image: "images/day1.jpg" (+ alt) shows above the message.
    Optional doorImage: "Media/name/day1.jpg" shows that photo on the door once it has been opened.
    Optional focus: "50% 20%" on the day (door photo) or on an image item (message photo) moves the crop; lower % shows higher up.
+   Optional fit: "contain" on an image item shows the whole picture uncropped (good for screenshots).
    Leave media out for a text-only door. Days without an entry show a placeholder.
    Example:  3: { title: "Em Perrin", text: "Happy 30th!",
                   media: [ { type: "audio", src: "Media/name/day3.m4a", label: "Voice note" },
@@ -179,14 +180,15 @@ const YEAR = 2026;
    iPhone tips: Voice Memos -> Share -> Save to Files gives an .m4a; camera clips
    play best as .mp4 (H.264), kept short. */
 const DAYS = {
-  1: { title: "Connor", text: "Turn the sound up and press play.", doorImage: "Media/connor/connor.jpg",
+  1: { title: "Connor and Jack", text: "Turn the sound up and press play.", doorImage: "Media/connor/connor.jpg",
         media: [ { type: "image", src: "Media/connor/connor.jpg", alt: "Connor and friends on a night out" },
-                 { type: "audio", src: "Media/connor/connor.m4a", label: "Voice note from Connor" } ] },
+                 { type: "audio", src: "Media/connor/connor.m4a", label: "Voice note from Connor" },
+                 { type: "image", src: "Media/jack/jack.jpg", alt: "Jack's message, a WhatsApp chat", fit: "contain" } ] },
   2: { title: "Sarah Clifford", text: "Turn the sound up and press play.", doorImage: "Media/sarah/sarah.jpeg", focus: "50% 22%",
         media: [ { type: "image", src: "Media/sarah/sarah.jpeg", alt: "Haz at pole class", focus: "50% 22%" },
                  { type: "audio", src: "Media/sarah/sarah.m4a", label: "Voice note from Sarah" } ] },
-  3: { title: "Sophie Thompson", text: "A message from Sophie Thompson is on its way.", doorImage: "Media/sophie/sophie_web.jpg", focus: "12% 50%",
-        media: { type: "image", src: "Media/sophie/sophie_web.jpg", alt: "Haz, Sophie and Teddy in the snow" } },
+  3: { title: "Hannah Pawsey", text: "Dearest Haz,\n\nYour heart is pure gold and it’s been an absolute delight to get to know you better over these last few years and grow our friendship. Here’s to growing it even more💕\n\nHappy 30th Birthday, my beautiful friend!\n\nLots of love,\nHan 🪩🪩🪩", doorImage: "Media/hannah/hannah.jpeg",
+        media: { type: "image", src: "Media/hannah/hannah.jpeg", alt: "Hannah and Haz" } },
   4: { title: "Manda, Grumpy and Bear", text: "Turn the sound up and press play.", doorImage: "Media/manda/manda_graham.jpeg",
         media: { type: "video", src: "Media/manda/manda_graham.mp4", poster: "Media/manda/manda_graham.jpeg" } },
   5: { title: "Teddy", text: "Turn the sound up and press play.", doorImage: "Media/teddy/teddy_group.jpg",
@@ -199,9 +201,9 @@ const DAYS = {
   8: { title: "Eva", text: "Turn the sound up and press play.", doorImage: "Media/eva/eva_bench.jpg",
         media: [ { type: "image", src: "Media/eva/eva_bench.jpg", alt: "Eva and Haz on a bench" },
                  { type: "video", src: "Media/eva/eva.mp4", poster: "Media/eva/eva.jpg" } ] },
-  9: { title: "Hannah Pawsey", text: "Dearest Haz,\n\nYour heart is pure gold and it’s been an absolute delight to get to know you better over these last few years and grow our friendship. Here’s to growing it even more💕\n\nHappy 30th Birthday, my beautiful friend!\n\nLots of love,\nHan 🪩🪩🪩", doorImage: "Media/hannah/hannah.jpeg",
-        media: { type: "image", src: "Media/hannah/hannah.jpeg", alt: "Hannah and Haz" } },
-  10: { title: "Jack and Em", text: "Turn the sound up and press play.", doorImage: "Media/em/em_group_web.jpg",
+  9: { title: "Sophie Thompson", text: "A message from Sophie Thompson is on its way.", doorImage: "Media/sophie/sophie_web.jpg", focus: "12% 50%",
+        media: { type: "image", src: "Media/sophie/sophie_web.jpg", alt: "Haz, Sophie and Teddy in the snow" } },
+  10: { title: "Em Perrin", text: "Turn the sound up and press play.", doorImage: "Media/em/em_group_web.jpg",
         media: [ { type: "image", src: "Media/em/em_group_web.jpg", alt: "Haz and friends around the dinner table" },
                  { type: "video", src: "Media/em/em_perrin.mp4", poster: "Media/em/em_perrin.jpg" } ] },
   11: { title: "Ben and Sarah", text: "Turn the sound up and press play.", doorImage: "Media/ben/ben_web.jpeg",
@@ -333,7 +335,7 @@ function VoiceNote({ src, label }) {
 function Media({ m }) {
   if (!m) return null;
   if (Array.isArray(m)) return m.map((x, i) => h(Media, { key: i, m: x }));
-  if (m.type === "image") return h("img", { className: "pic", src: m.src, alt: m.alt || "", loading: "lazy", style: m.focus ? { objectPosition: m.focus } : undefined });
+  if (m.type === "image") return h("img", { className: "pic", src: m.src, alt: m.alt || "", loading: "lazy", style: m.fit || m.focus ? { objectFit: m.fit, objectPosition: m.focus } : undefined });
   if (m.type === "audio") return h(VoiceNote, { src: m.src, label: m.label });
   if (m.type === "video") return h("video", { controls: true, playsInline: true, preload: "metadata", poster: m.poster, src: m.src + (m.poster ? "" : "#t=0.1") });
   if (m.type === "youtube" || m.type === "embed")
