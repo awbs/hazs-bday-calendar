@@ -17,10 +17,15 @@ body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.5 Jost,syste
 .ui input{width:100%;padding:.6rem .8rem;border:1px solid #bdb2a3;border-radius:.5rem;font:inherit;background:#fff}
 .ui button{margin:.7rem .5rem 0 0;padding:.55rem 1.2rem;border:0;border-radius:999px;background:var(--plum);color:var(--paper);font:inherit;cursor:pointer}
 .ui li{margin:.2rem 0}
+.ui fieldset{border:1px solid #bdb2a3;border-radius:.6rem;margin:1rem 0 0;padding:.4rem 1rem 1rem}
+.ui legend{font-weight:500;padding:0 .3rem}
+.ui .nudge{display:grid;grid-template-columns:1fr 1fr;gap:0 1rem}
+.ui .nudge input{width:100%}
+.ui small{color:var(--muted)}
 /* A4 sheet: 3 x 3 cards of 63 x 88 mm */
 .sheet{width:210mm;height:297mm;margin:0 auto 1rem;background:#fff;position:relative;page-break-after:always;break-after:page;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.15)}
 .sheet .label{position:absolute;top:4mm;left:0;right:0;text-align:center;font-size:8pt;color:#999}
-.grid{position:absolute;left:10.5mm;top:16.5mm;display:grid;grid-template-columns:repeat(3,63mm);grid-auto-rows:88mm}
+.grid{position:absolute;left:calc(10.5mm + var(--nx,0mm));top:calc(16.5mm + var(--ny,0mm));display:grid;grid-template-columns:repeat(3,63mm);grid-auto-rows:88mm}
 .card{width:63mm;height:88mm;position:relative;overflow:hidden;outline:.2mm solid #ddd;outline-offset:-.1mm}
 .front{background:var(--blush)}
 .front img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 20%}
@@ -46,6 +51,17 @@ body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.5 Jost,syste
   <p>Photo on the front, QR code on the back. Print double-sided on A4, <b>flip on long edge</b>, scale 100% (not "fit to page"). Cut along the grey lines for 63 x 88 mm cards.</p>
   <label for="base">Calendar address</label>
   <input id="base" value="https://awbs.github.io/hazs-bday-calendar/">
+  <fieldset>
+    <legend>Printer nudge (mm)</legend>
+    <small>Print a test sheet. On each side, measure from the paper edge to the outer grey line: it should be 10.5 mm left and right, 16.5 mm top and bottom.
+      Move right = (right gap − left gap) ÷ 2. Move down = (bottom gap − top gap) ÷ 2. Negative numbers move left / up.</small>
+    <div class="nudge">
+      <div><label for="fx">Fronts: move right</label><input id="fx" type="number" step="0.5" value="0"></div>
+      <div><label for="fy">Fronts: move down</label><input id="fy" type="number" step="0.5" value="0"></div>
+      <div><label for="bx">Backs: move right</label><input id="bx" type="number" step="0.5" value="0"></div>
+      <div><label for="by">Backs: move down</label><input id="by" type="number" step="0.5" value="0"></div>
+    </div>
+  </fieldset>
   <button id="go">Rebuild</button><button onclick="print()">Print</button>
   <p id="missing"></p>
 </div>
@@ -99,8 +115,22 @@ function backCard(c, base) {
   b.appendChild(el("div", "sub", "Scan to open"));
   return b;
 }
-function sheet(label, cards) {
-  const s = el("div", "sheet"); s.appendChild(el("div", "label", label));
+/* per-side offsets for printers that don't centre the page; remembered in this browser */
+const NUDGE = ["fx", "fy", "bx", "by"];
+NUDGE.forEach(id => {
+  const i = document.getElementById(id);
+  try { const v = localStorage.getItem("cards-nudge-" + id); if (v !== null) i.value = v; } catch (e) {}
+  i.addEventListener("input", () => { try { localStorage.setItem("cards-nudge-" + id, i.value); } catch (e) {} applyNudge(); });
+});
+function applyNudge() {
+  const mm = id => (parseFloat(document.getElementById(id).value) || 0) + "mm";
+  document.querySelectorAll(".sheet").forEach(s => {
+    const side = s.dataset.side === "back" ? "b" : "f";
+    s.style.setProperty("--nx", mm(side + "x")); s.style.setProperty("--ny", mm(side + "y"));
+  });
+}
+function sheet(label, cards, side) {
+  const s = el("div", "sheet"); s.dataset.side = side; s.appendChild(el("div", "label", label));
   const g = el("div", "grid"); cards.forEach(c => g.appendChild(c)); s.appendChild(g); return s;
 }
 function build() {
@@ -108,7 +138,7 @@ function build() {
   const base = document.getElementById("base").value.trim().split("?")[0];
   for (let i = 0; i < CARDS.length; i += 9) {
     const page = CARDS.slice(i, i + 9), n = i / 9 + 1;
-    out.appendChild(sheet("Sheet " + n + " front", page.map(frontCard)));
+    out.appendChild(sheet("Sheet " + n + " front", page.map(frontCard), "front"));
     /* mirror each row so backs line up when flipped on the long edge */
     const mirrored = [];
     for (let r = 0; r < page.length; r += 3) {
@@ -116,8 +146,9 @@ function build() {
       while (row.length < 3) row.push(null); /* pad short rows so a lone card's back lands behind it */
       mirrored.push(...row.reverse());
     }
-    out.appendChild(sheet("Sheet " + n + " back", mirrored.map(c => c ? backCard(c, base) : el("div", "card blank"))));
+    out.appendChild(sheet("Sheet " + n + " back", mirrored.map(c => c ? backCard(c, base) : el("div", "card blank")), "back"));
   }
+  applyNudge();
   const miss = CARDS.filter(c => !c.img).map(c => c.name);
   document.getElementById("missing").textContent = miss.length ? "No photo yet: " + miss.join(", ") + "." : "";
 }

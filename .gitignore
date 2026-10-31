@@ -1,0 +1,5 @@
+# too big for GitHub (100 MB limit); web copy is stinky.mp4
+Media/stinky/My Movie.mp4
+# temp files left behind by safe-save
+*.sb-*
+.DS_Store

@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Print test sheet</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e9e5dc;--ink:#3a2733;--plum:#6d2e47;--muted:#85796f}
+@page{size:A4;margin:0}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.5 Jost,system-ui,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.ui{max-width:40rem;margin:0 auto;padding:1.5rem 1rem}
+.ui h1{font:500 2rem/1.1 "Cormorant Garamond",Georgia,serif;color:var(--plum);margin:0 0 .5rem}
+.ui ol{padding-left:1.2rem}.ui li{margin:.3rem 0}
+.ui fieldset{border:1px solid #bdb2a3;border-radius:.6rem;margin:1rem 0 0;padding:.4rem 1rem 1rem}
+.ui legend{font-weight:500;padding:0 .3rem}
+.ui .row{display:grid;grid-template-columns:repeat(4,1fr);gap:0 .6rem}
+.ui label{display:block;margin:.5rem 0 .2rem;font-size:.85rem}
+.ui input{width:100%;padding:.5rem .6rem;border:1px solid #bdb2a3;border-radius:.5rem;font:inherit;background:#fff}
+.ui button{margin:.9rem .5rem 0 0;padding:.55rem 1.2rem;border:0;border-radius:999px;background:var(--plum);color:#f4f1ea;font:inherit;cursor:pointer}
+.ui .out{margin:.8rem 0 0;font-weight:500;color:var(--plum)}
+.ui small{color:var(--muted)}
+/* same geometry as cards.html: 3 x 3 boxes of 63 x 88 mm, 10.5 mm in from the sides, 16.5 mm from top and bottom */
+.sheet{width:210mm;height:297mm;margin:0 auto 1rem;background:#fff;position:relative;page-break-after:always;break-after:page;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+.head{position:absolute;top:5mm;left:0;right:0;text-align:center;font:500 10pt Jost,sans-serif;letter-spacing:.15em;text-transform:uppercase}
+.foot{position:absolute;bottom:5mm;left:0;right:0;text-align:center;font-size:7.5pt;color:#555}
+.side{position:absolute;top:50%;font-size:6.5pt;color:#555;letter-spacing:.1em;white-space:nowrap}
+.side.l{left:5.25mm;transform:translate(-50%,-50%) rotate(-90deg)}
+.side.r{right:5.25mm;transform:translate(50%,-50%) rotate(90deg)}
+.grid{position:absolute;left:calc(10.5mm + var(--nx,0mm));top:calc(16.5mm + var(--ny,0mm));display:grid;grid-template-columns:repeat(3,63mm);grid-auto-rows:88mm}
+.box{position:relative;outline:.3mm solid #000;outline-offset:-.15mm;display:grid;place-items:center}
+.box::before,.box::after{content:"";position:absolute;left:50%;top:50%;background:#000}
+.box::before{width:16mm;height:.25mm;transform:translate(-50%,-50%)}
+.box::after{width:.25mm;height:16mm;transform:translate(-50%,-50%)}
+.box b{position:absolute;top:8mm;font:500 30pt/1 "Cormorant Garamond",Georgia,serif}
+.box span{position:absolute;bottom:8mm;font-size:7pt;color:#555;letter-spacing:.08em;text-transform:uppercase}
+.scale{position:absolute;bottom:20mm;left:6.5mm;width:50mm;height:3mm;border:.25mm solid #000;border-top:0}
+.scale::after{content:"this line = 50 mm";position:absolute;top:3.5mm;left:0;right:0;text-align:center;font-size:6.5pt}
+@media print{body{background:#fff}.ui{display:none}.sheet{margin:0;box-shadow:none}}
+</style>
+</head>
+<body>
+<div class="ui">
+  <h1>Print test sheet</h1>
+  <ol>
+    <li>Print this on <b>plain paper</b> with exactly the settings you'll use for the cards: Chrome, A4, Scale 100%, Margins None, Background graphics on, two-sided, <b>flip on long edge</b>.</li>
+    <li>Check the 50 mm line in box 5 really measures 50 mm. If not, the printer is scaling: fix that first.</li>
+    <li>Hold the sheet up to a window. The crosses in each box should sit on top of each other front and back.</li>
+    <li>With a ruler, measure from each paper edge to the outer black line, on both sides, and type them below.</li>
+  </ol>
+  <fieldset>
+    <legend>Measurements (mm)</legend>
+    <small>Should be 10.5 left and right, 16.5 top and bottom.</small>
+    <div class="row">
+      <div><label for="fl">Front left</label><input id="fl" type="number" step="0.5"></div>
+      <div><label for="fr">Front right</label><input id="fr" type="number" step="0.5"></div>
+      <div><label for="ft">Front top</label><input id="ft" type="number" step="0.5"></div>
+      <div><label for="fb">Front bottom</label><input id="fb" type="number" step="0.5"></div>
+      <div><label for="bl">Back left</label><input id="bl" type="number" step="0.5"></div>
+      <div><label for="br">Back right</label><input id="br" type="number" step="0.5"></div>
+      <div><label for="bt">Back top</label><input id="bt" type="number" step="0.5"></div>
+      <div><label for="bb">Back bottom</label><input id="bb" type="number" step="0.5"></div>
+    </div>
+    <button id="calc">Work out and save nudge</button><button id="reset">Reset nudge to 0</button><button onclick="print()">Print test</button>
+    <p class="out" id="out"></p>
+  </fieldset>
+</div>
+<div id="sheets"></div>
+<script>
+/* shares its nudge with cards.html (same localStorage keys), so a correction made here is used when printing the cards */
+const KEYS = ["fx", "fy", "bx", "by"];
+const get = k => { try { return parseFloat(localStorage.getItem("cards-nudge-" + k)) || 0; } catch (e) { return 0; } };
+const set = (k, v) => { try { localStorage.setItem("cards-nudge-" + k, String(v)); } catch (e) {} };
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text) e.textContent = text; return e; };
+
+function page(side) {
+  const s = el("div", "sheet");
+  s.style.setProperty("--nx", get(side[0] + "x") + "mm"); s.style.setProperty("--ny", get(side[0] + "y") + "mm");
+  s.appendChild(el("div", "head", side === "front" ? "Front (page 1)" : "Back (page 2)"));
+  s.appendChild(el("div", "side l", "LEFT gap: measure edge to line"));
+  s.appendChild(el("div", "side r", "RIGHT gap: measure edge to line"));
+  s.appendChild(el("div", "foot", "BOTTOM gap: measure from this edge to the lowest black line"));
+  const g = el("div", "grid");
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) {
+    const n = r * 3 + (side === "front" ? c : 2 - c) + 1; /* backs mirrored, same as the cards */
+    const b = el("div", "box"); b.appendChild(el("b", "", String(n)));
+    b.appendChild(el("span", "", side === "front" ? "front " + n : "back of " + n));
+    if (side === "front" && n === 5) b.appendChild(el("div", "scale"));
+    g.appendChild(b);
+  }
+  s.appendChild(g);
+  return s;
+}
+function build() {
+  const out = document.getElementById("sheets"); out.textContent = "";
+  out.appendChild(page("front")); out.appendChild(page("back"));
+  document.getElementById("out").textContent = "Nudge now: fronts " + get("fx") + " right, " + get("fy") + " down; backs " + get("bx") + " right, " + get("by") + " down (mm).";
+}
+document.getElementById("calc").addEventListener("click", () => {
+  const v = id => parseFloat(document.getElementById(id).value);
+  const half = (a, b) => isFinite(a) && isFinite(b) ? (b - a) / 2 : 0;
+  /* measurements were taken with the current nudge applied, so add the correction to it */
+  const round = x => Math.round(x * 4) / 4;
+  set("fx", round(get("fx") + half(v("fl"), v("fr")))); set("fy", round(get("fy") + half(v("ft"), v("fb"))));
+  set("bx", round(get("bx") + half(v("bl"), v("br")))); set("by", round(get("by") + half(v("bt"), v("bb"))));
+  ["fl", "fr", "ft", "fb", "bl", "br", "bt", "bb"].forEach(id => document.getElementById(id).value = "");
+  build();
+});
+document.getElementById("reset").addEventListener("click", () => { KEYS.forEach(k => set(k, 0)); build(); });
+build();
+</script>
+</body>
+</html>
