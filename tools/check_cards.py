@@ -12,6 +12,8 @@ pdf_path = os.path.join(tmp, "cards.pdf")
 subprocess.run([CHROME, "--headless=new", "--disable-gpu", "--no-pdf-header-footer", "--virtual-time-budget=15000",
                 "--print-to-pdf=" + pdf_path, URL], capture_output=True)
 cards = re.findall(r'\{ d: (\d+), name: "([^"]+)"', open("cards.html").read())
+only = re.search(r"[?&]only=([\d,]+)", URL)  # same filter as cards.html
+if only: cards = [c for c in cards if c[0] in only.group(1).split(",")]
 pdf, px, MM = fitz.open(pdf_path), 300 / 25.4, 72 / 25.4
 print("pages", len(pdf))
 pngs = []

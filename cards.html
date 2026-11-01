@@ -68,7 +68,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.5 Jost,syste
 <div id="out"></div>
 <script>
 /* name + photo for each door. img: "" means no photo yet. Keep in step with DAYS in index.html.
-   Carina (12) and Emily Harding (15) are left out until their messages arrive. */
+   Emily Harding (15) is left out until her message arrives.
+   Add ?only=12,15 to the address to print just those cards (the rest were printed on 30 Oct). */
 const CARDS = [
   { d: 1, name: "Connor and Jack",        img: "Media/connor/con_jack_blur.jpg" },
   { d: 2, name: "Sarah Clifford",         img: "Media/sarah/sarah.jpeg" },
@@ -81,6 +82,7 @@ const CARDS = [
   { d: 9, name: "Sophie Thompson",        img: "Media/sophie/sophie_blur.jpg" },
   { d: 10, name: "Em Perrin",              img: "Media/em/em_group_blur.jpg" },
   { d: 11, name: "Ben and Sarah",          img: "Media/ben/ben_blur.jpeg" },
+  { d: 12, name: "Carina",                 img: "Media/carina/carina_blur.jpg" },
   { d: 13, name: "Brooke",                 img: "Media/brooke/brooke_blur.jpeg" },
   { d: 14, name: "Pappa Johns",            img: "Media/paul/paul_blur.jpg" },
   { d: 16, name: "Stinky 1 and Stinky 2",  img: "Media/stinky/Stinky1.jpeg" }
@@ -136,8 +138,10 @@ function sheet(label, cards, side) {
 function build() {
   const out = document.getElementById("out"); out.textContent = "";
   const base = document.getElementById("base").value.trim().split("?")[0];
-  for (let i = 0; i < CARDS.length; i += 9) {
-    const page = CARDS.slice(i, i + 9), n = i / 9 + 1;
+  const only = (new URLSearchParams(location.search).get("only") || "").split(",").map(Number).filter(Boolean);
+  const list = only.length ? CARDS.filter(c => only.includes(c.d)) : CARDS;
+  for (let i = 0; i < list.length; i += 9) {
+    const page = list.slice(i, i + 9), n = i / 9 + 1;
     out.appendChild(sheet("Sheet " + n + " front", page.map(frontCard), "front"));
     /* mirror each row so backs line up when flipped on the long edge */
     const mirrored = [];
