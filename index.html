@@ -118,6 +118,21 @@ h1 em{display:inline-block;font-style:italic;font-weight:400;padding:0 .1em 0 .0
 .sheet p{margin:0 0 1rem;white-space:pre-line}
 .sheet img{display:block;width:100%;max-height:50vh;max-height:50dvh;object-fit:cover;border-radius:.9rem;margin:0 0 1rem}
 .sheet img.pic{max-height:46vh;max-height:46dvh;box-shadow:0 10px 26px -16px rgba(58,39,51,.6)}
+.sheet{min-width:0}
+.car{position:relative;margin:0 0 1rem;width:100%;contain:inline-size}
+.car-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;border-radius:.9rem;
+  background:#e4ddd2;box-shadow:0 10px 26px -16px rgba(58,39,51,.6);overscroll-behavior-x:contain}
+.car-track::-webkit-scrollbar{display:none}
+.car-slide{flex:0 0 100%;min-width:0;scroll-snap-align:center;display:block;height:62vh;height:62dvh}
+.sheet .car-slide img{width:100%;height:100%;max-height:none;object-fit:contain;border-radius:0;margin:0;box-shadow:none;user-select:none;-webkit-user-select:none}
+.car-btn{all:unset;position:absolute;top:calc(31vh - 1.2rem);top:calc(31dvh - 1.2rem);width:2.4rem;height:2.4rem;display:grid;place-items:center;border-radius:50%;
+  background:rgba(244,241,234,.85);color:var(--ink);font-size:1.6rem;line-height:1;cursor:pointer;box-shadow:0 4px 14px -6px rgba(58,39,51,.5)}
+.car-btn.prev{left:.5rem}.car-btn.next{right:.5rem}
+.car-btn:disabled{opacity:0;pointer-events:none}
+.car-btn:focus-visible{outline:3px solid var(--d1)}
+.car-dots{display:flex;justify-content:center;gap:.45rem;padding:.7rem 0 0}
+.car-dots button{all:unset;width:.5rem;height:.5rem;border-radius:50%;background:#cfc5b8;cursor:pointer;transition:background-color .2s,transform .2s}
+.car-dots button.on{background:var(--plum);transform:scale(1.25)}
 .sheet video{display:block;width:auto;height:auto;max-width:100%;max-height:62vh;max-height:62dvh;border-radius:1.1rem;background:var(--ink);margin:0 auto 1rem}
 .sheet iframe{display:block;width:100%;aspect-ratio:16/9;border:0;border-radius:1.1rem;margin:0 0 1rem}
 .cap{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:0 0 .45rem}
@@ -201,8 +216,11 @@ const DAYS = {
   8: { title: "Eva", text: "Turn the sound up and press play.", doorImage: "Media/eva/eva_bench.jpg",
         media: [ { type: "image", src: "Media/eva/eva_bench.jpg", alt: "Eva and Haz on a bench" },
                  { type: "video", src: "Media/eva/eva.mp4", poster: "Media/eva/eva.jpg" } ] },
-  9: { title: "Sophie Thompson", text: "A message from Sophie Thompson is on its way.", doorImage: "Media/sophie/sophie_web.jpg", focus: "12% 50%",
-        media: { type: "image", src: "Media/sophie/sophie_web.jpg", alt: "Haz, Sophie and Teddy in the snow" } },
+  9: { title: "Jack", text: "Turn the sound up and press play.", doorImage: "Media/jack/jack_hazdog_web.jpg", focus: "65% 63%",
+        media: [ { type: "image", src: "Media/jack/jack_hazdog_web.jpg", alt: "The dachshund with Haz's face, asleep on the sofa" },
+                 { type: "image", src: "Media/jack/jack_dog_web.jpg", alt: "Adam cuddling the dachshund" },
+                 { type: "image", src: "Media/jack/jack_sofa_web.jpg", alt: "The dachshund on the sofa" },
+                 { type: "audio", src: "Media/jack/jack.m4a", label: "Voice note from Jack" } ] },
   10: { title: "Em Perrin", text: "Turn the sound up and press play.", doorImage: "Media/em/em_group_web.jpg",
         media: [ { type: "image", src: "Media/em/em_group_web.jpg", alt: "Haz and friends around the dinner table" },
                  { type: "video", src: "Media/em/em_perrin.mp4", poster: "Media/em/em_perrin.jpg" } ] },
@@ -335,9 +353,33 @@ function VoiceNote({ src, label }) {
       h("span", { className: "vn-time" }, fmt(playing || t ? t : dur))));
 }
 
+/* Two or more images in a row become a swipeable carousel showing each photo whole. */
+function Carousel({ items }) {
+  const track = useRef(null);
+  const [i, setI] = useState(0);
+  const onScroll = () => { const t = track.current; if (t) setI(Math.round(t.scrollLeft / t.clientWidth)); };
+  const go = n => { const t = track.current; if (t) t.scrollTo({ left: Math.max(0, Math.min(items.length - 1, n)) * t.clientWidth, behavior: "smooth" }); };
+  return h("div", { className: "car" },
+    h("div", { className: "car-track", ref: track, onScroll },
+      items.map((m, k) => h("div", { className: "car-slide", key: k },
+        h("img", { src: m.src, alt: m.alt || "", loading: k ? "lazy" : "eager", draggable: false })))),
+    h("button", { className: "car-btn prev", onClick: () => go(i - 1), disabled: i === 0, "aria-label": "Previous photo" }, "‹"),
+    h("button", { className: "car-btn next", onClick: () => go(i + 1), disabled: i === items.length - 1, "aria-label": "Next photo" }, "›"),
+    h("div", { className: "car-dots" }, items.map((_, k) =>
+      h("button", { key: k, className: k === i ? "on" : "", onClick: () => go(k), "aria-label": "Photo " + (k + 1) }))));
+}
+
 function Media({ m }) {
   if (!m) return null;
-  if (Array.isArray(m)) return m.map((x, i) => h(Media, { key: i, m: x }));
+  if (Array.isArray(m)) {
+    const out = [];
+    for (let k = 0; k < m.length; k++) {
+      let j = k; while (j < m.length && m[j].type === "image") j++;
+      if (j - k >= 2) { out.push(h(Carousel, { key: k, items: m.slice(k, j) })); k = j - 1; }
+      else out.push(h(Media, { key: k, m: m[k] }));
+    }
+    return out;
+  }
   if (m.type === "image") return h("img", { className: "pic", src: m.src, alt: m.alt || "", loading: "lazy", style: m.fit || m.focus ? { objectFit: m.fit, objectPosition: m.focus } : undefined });
   if (m.type === "audio") return h(VoiceNote, { src: m.src, label: m.label });
   if (m.type === "video") return h("video", { controls: true, playsInline: true, preload: "metadata", poster: m.poster, src: m.src + (m.poster ? "" : "#t=0.1") });
