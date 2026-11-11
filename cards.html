@@ -68,8 +68,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.5 Jost,syste
 <div id="out"></div>
 <script>
 /* name + photo for each door. img: "" means no photo yet. Keep in step with DAYS in index.html.
-   Emily Harding (15) is left out until her message arrives.
-   Add ?only=12,15 to the address to print just those cards (the rest were printed on 30 Oct). */
+   Add ?only=9,12,15 to the address to print just those cards (the rest were printed on 30 Oct). */
 const CARDS = [
   { d: 1, name: "Connor and Jack",        img: "Media/connor/con_jack_blur.jpg" },
   { d: 2, name: "Sarah Clifford",         img: "Media/sarah/sarah.jpeg" },
@@ -85,6 +84,7 @@ const CARDS = [
   { d: 12, name: "Carina",                 img: "Media/carina/carina_blur.jpg" },
   { d: 13, name: "Brooke",                 img: "Media/brooke/brooke_blur.jpeg" },
   { d: 14, name: "Pappa Johns",            img: "Media/paul/paul_blur.jpg" },
+  { d: 15, name: "Emily Harding",          img: "Media/emily/emily_blur.jpg" },
   { d: 16, name: "Stinky 1 and Stinky 2",  img: "Media/stinky/Stinky1.jpeg" }
 ];
 const badge = d => "data:image/svg+xml;utf8," + encodeURIComponent(
