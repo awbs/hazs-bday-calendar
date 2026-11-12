@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#e9e5dc">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<title>A smol gift</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e9e5dc;--ink:#3a2733;--plum:#6d2e47;--muted:#85796f;--paper:#f4f1ea;--blush:#e5bfa8;--d1:#c2c99f;
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .32 0 0 0 0 .24 0 0 0 0 .22 0 0 0 .34 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+*{box-sizing:border-box}
+html{background:var(--bg);-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;min-height:100dvh;color:var(--ink);font:300 1rem/1.6 Jost,system-ui,-apple-system,sans-serif;
+  padding:calc(2.2rem + env(safe-area-inset-top)) calc(1rem + env(safe-area-inset-right)) calc(3rem + env(safe-area-inset-bottom)) calc(1rem + env(safe-area-inset-left));
+  -webkit-tap-highlight-color:transparent;
+  background-color:var(--bg);background-repeat:no-repeat;
+  background-image:radial-gradient(60rem 34rem at 108% -6%,rgba(205,191,222,.7),transparent 62%),
+                   radial-gradient(46rem 30rem at -12% 12%,rgba(211,228,195,.75),transparent 60%),
+                   radial-gradient(50rem 30rem at 50% 108%,rgba(229,191,168,.55),transparent 62%)}
+body::before{content:"";position:fixed;inset:0;z-index:1;pointer-events:none;background:var(--grain);opacity:.4;mix-blend-mode:multiply}
+main{position:relative;z-index:2;max-width:40rem;margin:0 auto}
+main>*{animation:fadeUp .7s both}
+main>:nth-child(2){animation-delay:.08s}main>:nth-child(3){animation-delay:.16s}main>:nth-child(4){animation-delay:.24s}main>:nth-child(n+5){animation-delay:.32s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.eyebrow{letter-spacing:.3em;text-transform:uppercase;font-size:.66rem;font-weight:400;color:var(--muted);margin:0 0 .8rem}
+h1{font:300 clamp(2.6rem,12.5vw,4.4rem)/.98 "Cormorant Garamond",Georgia,serif;letter-spacing:-.02em;margin:0 0 1rem;text-wrap:balance}
+h1 em{font-style:italic;font-weight:400;color:var(--plum)}
+.sub{color:var(--muted);margin:0 0 1.6rem;max-width:28rem}
+h2{font:400 1.9rem/1.1 "Cormorant Garamond",Georgia,serif;letter-spacing:-.01em;margin:2.4rem 0 .7rem}
+p{margin:0 0 1rem;max-width:34rem}
+.car{position:relative;margin:0 0 .4rem}
+.car-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;border-radius:1.1rem;
+  background:#e4ddd2;box-shadow:0 16px 30px -18px rgba(58,39,51,.6);overscroll-behavior-x:contain}
+.car-track::-webkit-scrollbar{display:none}
+.car-slide{flex:0 0 100%;min-width:0;scroll-snap-align:center;margin:0;aspect-ratio:3/2}
+.car-slide img{display:block;width:100%;height:100%;object-fit:cover;user-select:none;-webkit-user-select:none}
+.car-btn{all:unset;position:absolute;top:50%;margin-top:-1.2rem;width:2.4rem;height:2.4rem;display:grid;place-items:center;border-radius:50%;
+  background:rgba(244,241,234,.85);color:var(--ink);font-size:1.6rem;line-height:1;cursor:pointer;box-shadow:0 4px 14px -6px rgba(58,39,51,.5)}
+.car-btn.prev{left:.5rem}.car-btn.next{right:.5rem}
+.car-btn:disabled{opacity:0;pointer-events:none}
+.car-btn:focus-visible{outline:3px solid var(--d1)}
+.car-meta{display:flex;justify-content:space-between;gap:1rem;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:.7rem 0 0}
+.car-meta span:last-child{font-variant-numeric:tabular-nums;white-space:nowrap}
+.facts{display:grid;grid-template-columns:repeat(2,1fr);gap:.7rem;list-style:none;margin:1.8rem 0 0;padding:0}
+@media(min-width:620px){.facts{grid-template-columns:repeat(4,1fr)}}
+.facts li{border-radius:.9rem;padding:.8rem .9rem;background-image:var(--grain),linear-gradient(180deg,rgba(255,255,255,.3),rgba(58,39,51,.07));background-blend-mode:multiply,normal;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 16px 20px -16px rgba(58,39,51,.45)}
+.facts li:nth-child(1){background-color:#d3e4c3}.facts li:nth-child(2){background-color:#f0e0b2}.facts li:nth-child(3){background-color:#cfc2de}.facts li:nth-child(4){background-color:#e5bfa8}
+.facts b{display:block;font:500 1.5rem/1.1 "Cormorant Garamond",Georgia,serif}
+.facts span{font-size:.82rem}
+.list{list-style:none;margin:0;padding:0;max-width:34rem}
+.list li{position:relative;padding:.5rem 0 .5rem 1.5rem;border-bottom:1px solid rgba(58,39,51,.1)}
+.list li:last-child{border-bottom:0}
+.list li::before{content:"\2726";position:absolute;left:0;top:.5rem;color:var(--plum);font-size:.8rem}
+.list b{font-weight:500}
+.back{display:block;text-align:center;text-decoration:none;margin-top:2.6rem;padding:.8rem;border-radius:999px;background:var(--ink);color:var(--paper);font-weight:500}
+.back:focus-visible{outline:3px solid var(--d1);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">A smol gift</p>
+  <h1>A stay at <em>The Duck's Den</em></h1>
+  <p class="sub">A cabin for two in a woodland clearing at The Goose in the Woods, Loxley, Warwickshire. We're going away.</p>
+
+  <div class="car">
+    <div class="car-track" id="track"></div>
+    <button class="car-btn prev" id="prev" aria-label="Previous photo" disabled>‹</button>
+    <button class="car-btn next" id="next" aria-label="Next photo">›</button>
+  </div>
+  <p class="car-meta" aria-live="polite"><span id="cap"></span><span id="num"></span></p>
+
+  <ul class="facts">
+    <li><b>Sleeps 2</b><span>One super king-size bed</span></li>
+    <li><b>Lake</b><span>Wild swimming under 100m from the door</span></li>
+    <li><b>Sauna</b><span>A private lakeside session</span></li>
+    <li><b>40 acres</b><span>Of grounds, wrapped in woodland</span></li>
+  </ul>
+
+  <h2>The cabin</h2>
+  <p>The Duck's Den is a reclaimed-timber cabin tucked into a clearing in the trees at Woodfield Farm, with a natural swimming lake a short stroll from its front steps. Inside it's open plan, with a super king-size bed that looks out into the woods, and a covered front deck with a wood-burning stove for the evenings.</p>
+  <ul class="list">
+    <li><b>Bedroom:</b> one super king-size bed, with bed linen and towels provided.</li>
+    <li><b>Kitchen:</b> two-ring hob, oven, toaster, kettle and undercounter fridge, with cooking basics supplied.</li>
+    <li><b>Bathroom:</b> hot shower, sink and toilet in the cabin.</li>
+    <li><b>Bathhouse:</b> a separate bathing cabin with a roll-top bath and a cold shower.</li>
+    <li><b>Cosy bits:</b> wood burner on the deck, radiators and air conditioning.</li>
+    <li><b>Indoors:</b> board games, books, TV, Bluetooth speaker and wifi.</li>
+  </ul>
+
+  <h2>Things to do there</h2>
+  <ul class="list">
+    <li><b>Wild swimming lake,</b> with a rowing boat and a stand-up paddleboard to borrow.</li>
+    <li><b>Lakeside sauna,</b> with a private session included in the stay.</li>
+    <li><b>Tennis court,</b> free to use.</li>
+    <li><b>Firepit and BBQ</b> for dinner outdoors.</li>
+    <li><b>Woodland all around,</b> with deer and rabbits for neighbours.</li>
+  </ul>
+
+  <h2>Nearby</h2>
+  <ul class="list">
+    <li><b>Charlecote Park</b> (2.5 miles): National Trust estate with a deer herd.</li>
+    <li><b>The Fox at Loxley</b> (3 miles): country pub.</li>
+    <li><b>Loxley Viewpoint</b> (5 miles): panoramic views.</li>
+    <li><b>Stratford-upon-Avon</b> (8 miles) and <b>Warwick</b> (8.4 miles).</li>
+    <li><b>Chipping Campden</b> (14 miles): Cotswold town.</li>
+    <li><b>Farm shops:</b> Cobbs, Daylesford Organic and Charlotte's Garden Centre.</li>
+  </ul>
+
+  <h2>What to pack</h2>
+  <ul class="list">
+    <li>Walking boots for the woods.</li>
+    <li>Swimming things and flip-flops for the lake.</li>
+    <li>A bathrobe for the sauna.</li>
+  </ul>
+
+  <a class="back" href="index.html">Back to the calendar</a>
+</main>
+<script>
+/* Photos load straight from the Canopy & Stars listing. To keep copies in the repo instead,
+   save them to Media/ducksden/ and swap BASE for that folder. */
+const BASE = "https://www.canopyandstars.co.uk/var/self_catering_site/storage/images/canopy-and-stars/britain/england/warwickshire/the-goose-in-the-woods/the-duck-s-den/the-duck-s-den-gallery/";
+const PHOTOS = [
+  ["duck-s-den-exterior", "199691906-1", "The Duck's Den"],
+  ["open-plan-interior", "199691912-1", "Open plan interior"],
+  ["private-roll-top-bath", "199691882-1", "Private roll-top bath"],
+  ["surrounding-area", "199691852-1", "The surrounding area"],
+  ["outdoor-shower-and-swimming-lake", "199691822-1", "Outdoor shower and swimming lake"],
+  ["sauna", "199691846-1", "Sauna"],
+  ["ducks-den-exterior", "199691936-1", "The cabin from outside"],
+  ["front-decking", "199691924-1", "Front decking"],
+  ["kitchen-equipped-with-a-two-ring-induction-hob-undercounter-fridge-oven-kettle-and-toaster", "199691918-1", "Kitchen"],
+  ["super-king-size-bed", "199691900-1", "Super king-size bed"],
+  ["view-from-bed", "199691894-1", "View from bed"],
+  ["wood-burner", "199691930-1", "Wood burner"],
+  ["hot-shower", "199691864-1", "Hot shower"],
+  ["bathroom", "199691858-1", "Bathroom"],
+  ["tennis-court", "199691876-1", "Tennis court"],
+  ["wild-swimming-lake-and-lakeside-sauna", "199691834-1", "Wild swimming lake and lakeside sauna"],
+  ["sauna-view", "199691840-2", "View from the sauna"],
+  ["duck-s-den", "199691870-1", "The Duck's Den"],
+  ["bathing-cabin", "199691888-1", "Bathing cabin"],
+  ["front-exterior-evening", "199691828-1", "The cabin in the evening"]
+];
+const $ = id => document.getElementById(id);
+const track = $("track");
+let shown = [];
+PHOTOS.forEach(([slug, id, alt], k) => {
+  const fig = document.createElement("figure"), img = document.createElement("img");
+  fig.className = "car-slide";
+  img.src = BASE + slug + "/" + id + "-eng-GB/" + slug + "_cs_large_gallery_preview.jpg";
+  img.alt = alt; img.loading = k < 2 ? "eager" : "lazy"; img.draggable = false; img.referrerPolicy = "no-referrer";
+  img.onerror = () => { fig.remove(); shown = shown.filter(a => a !== alt); update(); }; /* drop a photo that fails rather than show a gap */
+  fig.appendChild(img); track.appendChild(fig); shown.push(alt);
+});
+function update() {
+  const n = shown.length, i = Math.min(n - 1, Math.max(0, Math.round(track.scrollLeft / (track.clientWidth || 1))));
+  $("cap").textContent = n ? shown[i] : ""; $("num").textContent = n ? (i + 1) + " / " + n : "";
+  $("prev").disabled = i <= 0; $("next").disabled = i >= n - 1;
+  document.querySelector(".car").hidden = !n;
+  return i;
+}
+const go = d => track.scrollTo({ left: (update() + d) * track.clientWidth, behavior: "smooth" });
+$("prev").onclick = () => go(-1); $("next").onclick = () => go(1);
+track.addEventListener("scroll", update, { passive: true });
+addEventListener("resize", update);
+update();
+</script>
+</body>
+</html>
