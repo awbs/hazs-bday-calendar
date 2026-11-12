@@ -155,6 +155,10 @@ h1 em{display:inline-block;font-style:italic;font-weight:400;padding:0 .1em 0 .0
 .vn.playing .vn-wave i.head{animation:bob .35s ease-in-out infinite alternate}
 @keyframes bob{to{transform:scaleY(1.5)}}
 .close{all:unset;box-sizing:border-box;display:block;width:100%;text-align:center;cursor:pointer;margin-top:1.2rem;padding:.8rem;border-radius:999px;background:var(--ink);color:var(--paper);font-weight:500}
+.gift{display:block;text-align:center;text-decoration:none;margin-top:1.2rem;padding:.8rem;border-radius:999px;font-weight:500;color:#f1e6dc;
+  background:linear-gradient(100deg,var(--plum) 20%,#c0607f 50%,var(--plum) 80%)}
+.gift:focus-visible{outline:3px solid var(--d1);outline-offset:2px}
+.gift+.close{margin-top:.7rem}
 .close:focus-visible{outline:3px solid var(--d1);outline-offset:2px}
 /* tap empty space: a balloon, dachshund or party bit pops up and floats away */
 .floater{position:fixed;left:0;top:0;z-index:15;pointer-events:none;width:var(--w);margin:calc(var(--w)*-.5) 0 0 calc(var(--w)*-.5);
@@ -188,6 +192,7 @@ const YEAR = 2026;
    Optional doorImage: "Media/name/day1.jpg" shows that photo on the door once it has been opened.
    Optional focus: "50% 20%" on the day (door photo) or on an image item (message photo) moves the crop; lower % shows higher up.
    Optional fit: "contain" on an image item shows the whole picture uncropped (good for screenshots).
+   Optional link: { href: "gift.html", label: "a smol gift" } adds a button under the message that opens another page.
    Leave media out for a text-only door. Days without an entry show a placeholder.
    Example:  3: { title: "Em Perrin", text: "Happy 30th!",
                   media: [ { type: "audio", src: "Media/name/day3.m4a", label: "Voice note" },
@@ -240,7 +245,8 @@ const DAYS = {
                  { type: "video", src: "Media/emily/emily.mp4", poster: "Media/emily/emily_poster.jpg" } ] },
   16: { title: "Stinky 1 and Stinky 2", text: "Turn the sound up and press play.", doorImage: "Media/stinky/Stinky1.jpeg",
         media: [ { type: "image", src: "Media/stinky/Stinky1.jpeg", alt: "Haz with the dog by the seafront" },
-                 { type: "video", src: "Media/stinky/stinky.mp4", poster: "Media/stinky/stinky_poster.jpg" } ] }
+                 { type: "video", src: "Media/stinky/stinky.mp4", poster: "Media/stinky/stinky_poster.jpg" } ],
+        link: { href: "gift.html", label: "a smol gift" } }
 };
 /* --------------------------------------- */
 
@@ -426,6 +432,7 @@ function Sheet({ day, onClose }) {
       h("h2", { id: "st" }, e.title || "Day " + day),
       e.text && h("p", null, e.text),
       h(Media, { m: e.media }),
+      e.link && h("a", { className: "gift", href: e.link.href }, e.link.label),
       h("button", { className: "close", ref: btn, onClick: close }, "Close")));
 }
 
